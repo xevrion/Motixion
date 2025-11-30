@@ -28,7 +28,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const fetchUserData = async () => {
     try {
       const authUser = await authService.getCurrentUser();
-      if (!authUser) return;
+      if (!authUser) {
+        setLoading(false);
+        return;
+      }
 
       const { data: userData, error } = await supabase
         .from('users')
@@ -36,7 +39,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .eq('id', authUser.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        if (error.message.includes('relation "public.users" does not exist')) {
+          alert('❌ Database not set up!\n\n1. Go to your Supabase dashboard\n2. Open SQL Editor\n3. Run the supabase-schema.sql file\n\nSee README.md for details.');
+        }
+        throw error;
+      }
 
       setUser({
         id: userData.id,
