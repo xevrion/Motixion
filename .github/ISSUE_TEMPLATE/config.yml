@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/OWNER/Motixion/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: Documentation
+    url: https://github.com/OWNER/Motixion/blob/main/CLAUDE.md
+    about: Read the technical documentation for developers

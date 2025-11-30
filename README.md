@@ -181,27 +181,89 @@ netlify deploy --prod
 - Make sure your `.env` file has the correct Supabase credentials
 - Check browser console for errors
 - Verify the database schema was set up correctly
+- Ensure all required tables exist in Supabase Table Editor
 
 ### Authentication Issues
 
 - Clear browser cache and cookies
 - Check Supabase Auth settings in your project dashboard
-- Ensure email confirmations are disabled for development (Settings → Auth)
+- Ensure email confirmations are disabled for development (Settings → Auth → Email Confirmations)
+- Verify the `handle_new_user()` trigger is properly set up
 
 ### Points Not Calculating
 
 - Verify the `calculate_daily_points` function exists in your database
 - Check the SQL Editor for any errors when running the schema
+- Ensure both `services/pointLogic.ts` and SQL function match exactly
+
+### Leaderboard Not Showing Friends
+
+- Verify friends have accepted the friend request (status = 'accepted')
+- Check RLS policies are enabled on the `friendships` table
+- Ensure friends have logged activity for today
+
+### Rewards Not Appearing
+
+- Check that `services/mockData.ts` exports the `REWARDS` array
+- Verify `Shop.tsx` imports REWARDS correctly
+- Ensure each reward has a unique ID
+
+## Contributing
+
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### Quick Start for Contributors
+
+1. **Fork the repository** and clone your fork
+2. **Create a new branch** for your feature: `git checkout -b feature/amazing-feature`
+3. **Make your changes** and test thoroughly
+4. **Commit your changes**: `git commit -m 'feat: add amazing feature'`
+5. **Push to your fork**: `git push origin feature/amazing-feature`
+6. **Open a Pull Request** with a clear description
+
+### What Can You Contribute?
+
+- **Bug fixes**: Found a bug? Submit a fix!
+- **New features**: Ideas for improvements? We'd love to see them
+- **Documentation**: Help improve our docs
+- **Rewards**: Add new reward ideas to `services/mockData.ts`
+- **UI/UX**: Enhance the user experience
+- **Performance**: Optimize code and animations
+
+### Contribution Guidelines
+
+Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
+- Code standards and project structure
+- Commit message conventions
+- Pull request process
+- Adding new features and rewards
+- Testing requirements
+
+### Development Notes
+
+- Follow the existing code style (TypeScript + Tailwind CSS)
+- Test on both desktop and mobile viewports
+- Ensure points calculation matches both client and SQL functions
+- Keep animations smooth (0.2-0.3s, GPU-accelerated)
+- Maintain the 5:00 AM daily reset logic
+
+### Need Help?
+
+- Check out [CLAUDE.md](CLAUDE.md) for detailed architecture documentation
+- Open an issue for questions or discussions
+- Review existing issues and PRs for context
 
 ## Future Enhancements
 
-- [ ] Push notifications
-- [ ] Global leaderboard
-- [ ] Weekly/monthly reports
-- [ ] Group accountability mode
+- [ ] Push notifications for daily reminders
+- [ ] Global leaderboard across all users
+- [ ] Weekly/monthly reports and analytics
+- [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
-- [ ] AI-powered insights
+- [ ] AI-powered insights and coaching
 - [ ] Personalized Shop (Custom rewards)
+- [ ] Dark/light theme toggle
+- [ ] Export data functionality
 
 ## License
 
