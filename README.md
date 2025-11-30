@@ -249,7 +249,6 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 
 ### Need Help?
 
-- Check out [CLAUDE.md](CLAUDE.md) for detailed architecture documentation
 - Open an issue for questions or discussions
 - Review existing issues and PRs for context
 
