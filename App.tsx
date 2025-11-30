@@ -10,6 +10,7 @@ import { Auth } from './components/Auth';
 import { ViewState } from './types';
 import { authService } from './services/auth';
 import { Loader2 } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/next';
 
 const AppContent: React.FC = () => {
   const [currentView, setView] = useState<ViewState>(ViewState.DASHBOARD);
@@ -78,6 +79,7 @@ const App: React.FC = () => {
 
   return (
     <AppProvider>
+      <Analytics />
       <AppContent />
     </AppProvider>
   );
