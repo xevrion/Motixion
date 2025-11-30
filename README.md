@@ -4,16 +4,16 @@ A minimal, fast, responsive web app that gamifies daily life for accountability 
 
 ## Features
 
-✅ **Authentication** - Secure email/password login with Supabase Auth
-✅ **Daily Logging** - Track wake time, study hours, break hours, wasted time, and tasks
-✅ **Points System** - Automatic calculation based on performance with extra credit
-✅ **Streaks** - Track daily consistency and best streaks
-✅ **Leaderboard** - Compete with multiple friends on daily rankings
-✅ **Friend System** - Search, add friends, and view their detailed progress
-✅ **Reward Shop** - Redeem points for real-world treats
-✅ **Dashboard** - Beautiful charts and analytics
-✅ **Profile** - Lifetime stats and purchase history
-✅ **5AM Daily Reset** - Work late without penalty (YPT-style cutoff)
+- **Authentication** - Secure email/password login with Supabase Auth
+- **Daily Logging** - Track wake time, study hours, break hours, wasted time, and tasks
+- **Points System** - Automatic calculation based on performance with extra credit
+- **Streaks** - Track daily consistency and best streaks
+- **Leaderboard** - Compete with multiple friends on daily rankings
+- **Friend System** - Search, add friends, and view their detailed progress
+- **Reward Shop** - Redeem points for real-world treats
+- **Dashboard** - Beautiful charts and analytics
+- **Profile** - Lifetime stats and purchase history
+- **5AM Daily Reset** - Work late without penalty (YPT-style cutoff)
 
 ## Tech Stack
 
@@ -22,7 +22,7 @@ A minimal, fast, responsive web app that gamifies daily life for accountability 
 - **Backend**: Supabase (PostgreSQL + Auth + RLS)
 - **Charts**: Recharts
 
-## Setup Instructions
+## Setup Instructions for Development
 
 ### 1. Prerequisites
 
