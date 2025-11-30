@@ -98,11 +98,14 @@ The app will be available at `http://localhost:5173`
 ### Points Breakdown
 
 - **Study Hours**: 5 points per hour
-- **Tasks Completion**:
-  - 100%: +20 points
-  - 80-99%: +10 points
-  - 50-79%: 0 points
-  - <50%: -10 points
+- **Tasks Completion** (with extra credit for over-achievement):
+  - ≤80%: -10 points
+  - 81-90%: 0 points
+  - 91-100%: +10 points
+  - 100-120%: +15 points
+  - 120-150%: +20 points
+  - 150-180%: +25 points
+  - 180-200%: +30 points
 - **Wake Time Bonus**:
   - Before 6:00 AM: +15 points
   - 6:00-7:00 AM: +10 points
@@ -112,10 +115,11 @@ The app will be available at `http://localhost:5173`
 
 ### Adding Friends
 
-1. Go to the **Friends** tab
-2. Search for users by username or email
+1. Go to the **Friends** tab (Leaderboard)
+2. Search for users by username
 3. Click "Add Friend"
-4. Once they accept, you can view their progress
+4. Once they accept, they'll appear on the leaderboard
+5. Click any friend to view their detailed performance
 
 ### Reward Shop
 

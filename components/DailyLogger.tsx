@@ -210,17 +210,25 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
                             <input
                                 type="number"
                                 min="0"
-                                max={formData.tasksAssigned}
                                 value={formData.tasksCompleted}
                                 onChange={e => setFormData({ ...formData, tasksCompleted: parseInt(e.target.value) || 0 })}
                                 className="w-full bg-transparent border-b border-zinc-800 py-1 text-emerald-400 text-2xl font-bold focus:outline-none focus:border-emerald-500 text-center"
                             />
                          </div>
                      </div>
-                     <div className="text-center mt-2">
-                        <span className="text-xs text-zinc-500">
-                            Success Rate: <span className="text-white font-bold">{formData.tasksAssigned > 0 ? Math.round((formData.tasksCompleted / formData.tasksAssigned) * 100) : 0}%</span>
-                        </span>
+                     <div className="text-center mt-2 space-y-1">
+                        <div className="text-xs text-zinc-500">
+                            Completion: <span className={`font-bold ${
+                              formData.tasksAssigned > 0 && (formData.tasksCompleted / formData.tasksAssigned) * 100 > 100
+                                ? 'text-yellow-400'
+                                : 'text-white'
+                            }`}>
+                              {formData.tasksAssigned > 0 ? Math.round((formData.tasksCompleted / formData.tasksAssigned) * 100) : 0}%
+                            </span>
+                        </div>
+                        <div className="text-xs text-emerald-400/70">
+                          💡 Go over 100% for bonus points!
+                        </div>
                      </div>
                 </InputGroup>
 

@@ -247,17 +247,24 @@ BEGIN
   -- 1. Study Hours (5 points per hour)
   v_study_points := ROUND(p_study_hours * 5);
 
-  -- 2. Task Completion Bracket
+  -- 2. Task Completion Bracket (with extra credit for over-achievement)
   IF p_tasks_assigned > 0 THEN
-    v_percentage := p_tasks_completed::NUMERIC / p_tasks_assigned::NUMERIC;
-    IF v_percentage >= 1 THEN
-      v_task_points := 20;
-    ELSIF v_percentage >= 0.8 THEN
-      v_task_points := 10;
-    ELSIF v_percentage >= 0.5 THEN
-      v_task_points := 0;
+    v_percentage := (p_tasks_completed::NUMERIC / p_tasks_assigned::NUMERIC) * 100;
+
+    IF v_percentage >= 180 THEN
+      v_task_points := 30;      -- 180-200%: +30
+    ELSIF v_percentage >= 150 THEN
+      v_task_points := 25;      -- 150-180%: +25
+    ELSIF v_percentage >= 120 THEN
+      v_task_points := 20;      -- 120-150%: +20
+    ELSIF v_percentage >= 100 THEN
+      v_task_points := 15;      -- 100-120%: +15
+    ELSIF v_percentage >= 91 THEN
+      v_task_points := 10;      -- 91-100%: +10
+    ELSIF v_percentage >= 81 THEN
+      v_task_points := 0;       -- 81-90%: 0
     ELSE
-      v_task_points := -10;
+      v_task_points := -10;     -- ≤80%: -10
     END IF;
   END IF;
 

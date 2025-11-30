@@ -11,13 +11,17 @@ export const calculatePoints = (
   // 1. Study Hours (5 points per hour)
   studyPoints = Math.round(log.studyHours * 5);
 
-  // 2. Task Completion Bracket
+  // 2. Task Completion Bracket (with extra credit for over-achievement)
   if (log.tasksAssigned > 0) {
-    const percentage = log.tasksCompleted / log.tasksAssigned;
-    if (percentage >= 1) taskPoints = 20;
-    else if (percentage >= 0.8) taskPoints = 10;
-    else if (percentage >= 0.5) taskPoints = 0;
-    else taskPoints = -10;
+    const percentage = (log.tasksCompleted / log.tasksAssigned) * 100;
+
+    if (percentage >= 180) taskPoints = 30;       // 180-200%: +30
+    else if (percentage >= 150) taskPoints = 25;  // 150-180%: +25
+    else if (percentage >= 120) taskPoints = 20;  // 120-150%: +20
+    else if (percentage >= 100) taskPoints = 15;  // 100-120%: +15
+    else if (percentage >= 91) taskPoints = 10;   // 91-100%: +10
+    else if (percentage >= 81) taskPoints = 0;    // 81-90%: 0
+    else taskPoints = -10;                         // ≤80%: -10
   }
 
   // 3. Wake Up Time Bonus

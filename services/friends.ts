@@ -9,12 +9,12 @@ export interface Friendship {
 }
 
 export const friendService = {
-  // Search for users by username or email
+  // Search for users by username only (email hidden for privacy)
   async searchUsers(query: string) {
     const { data, error } = await supabase
       .from('users')
-      .select('id, username, email, avatar_url')
-      .or(`username.ilike.%${query}%,email.ilike.%${query}%`)
+      .select('id, username, avatar_url')
+      .ilike('username', `%${query}%`)
       .limit(10);
 
     if (error) throw error;
