@@ -1,4 +1,4 @@
-# FocusForge
+# Motixion
 
 A minimal, fast, responsive web app that gamifies daily life for accountability partners. Track tasks, hours, points, streaks, and rewards with a shared system.
 
@@ -31,7 +31,7 @@ A minimal, fast, responsive web app that gamifies daily life for accountability 
 
 ```bash
 git clone <your-repo-url>
-cd FocusForge
+cd Motixion
 ```
 
 ### 3. Install Dependencies

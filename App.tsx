@@ -66,7 +66,7 @@ const App: React.FC = () => {
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={48} className="text-emerald-500 animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Loading FocusForge...</p>
+          <p className="text-zinc-400">Loading Motixion...</p>
         </div>
       </div>
     );

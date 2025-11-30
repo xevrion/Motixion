@@ -40,9 +40,9 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center font-bold text-zinc-950 text-3xl shadow-lg shadow-emerald-500/20 mx-auto mb-4">
-            F
+            M
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">FocusForge</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Motixion</h1>
           <p className="text-zinc-400">Gamify your productivity journey</p>
         </div>
 
