@@ -12,6 +12,7 @@ import { authService } from './services/auth';
 import { Loader2 } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/react';
 import Leaderboard from './components/Leaderboard';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const AppContent: React.FC = () => {
   const [currentView, setView] = useState<ViewState>(ViewState.DASHBOARD);
@@ -83,6 +84,7 @@ const App: React.FC = () => {
   return (
     <AppProvider>
       <Analytics />
+      <SpeedInsights />
       <AppContent />
     </AppProvider>
   );
