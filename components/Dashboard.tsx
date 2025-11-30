@@ -4,7 +4,18 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid
 import { Flame, TrendingUp, CheckCircle, Clock, Calendar, Edit3 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
-  const { user, logs } = useAppStore();
+  const { user, logs, loading } = useAppStore();
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-zinc-400">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const userLogs = logs
     .filter(l => l.userId === user.id)

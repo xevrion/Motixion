@@ -21,6 +21,8 @@ const InputGroup: React.FC<InputGroupProps> = ({ label, children, icon: Icon }) 
 
 export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ setView }) => {
   const { addLog } = useAppStore();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     wakeTime: '07:00',
     studyHours: 0,
@@ -31,13 +33,21 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
     notes: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addLog({
-      date: new Date().toISOString().split('T')[0],
-      ...formData
-    });
-    setView(ViewState.DASHBOARD);
+    setLoading(true);
+    setError('');
+
+    try {
+      await addLog({
+        date: new Date().toISOString().split('T')[0],
+        ...formData
+      });
+      setView(ViewState.DASHBOARD);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save log');
+      setLoading(false);
+    }
   };
 
   return (
@@ -85,6 +95,25 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
                             <span>0h</span>
                             <span>8h</span>
                             <span>16h</span>
+                        </div>
+                    </div>
+                </InputGroup>
+
+                <InputGroup label={`Break Hours (${formData.breakHours}h)`} icon={Clock}>
+                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
+                        <input
+                            type="range"
+                            min="0"
+                            max="8"
+                            step="0.5"
+                            value={formData.breakHours}
+                            onChange={e => setFormData({ ...formData, breakHours: parseFloat(e.target.value) })}
+                            className="w-full accent-blue-500 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer mb-2"
+                        />
+                         <div className="flex justify-between text-xs text-zinc-500 font-mono">
+                            <span>0h</span>
+                            <span>4h</span>
+                            <span>8h</span>
                         </div>
                     </div>
                 </InputGroup>
@@ -157,13 +186,20 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
             </div>
         </div>
 
+        {error && (
+          <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-rose-400 text-sm">
+            {error}
+          </div>
+        )}
+
         <div className="pt-6 border-t border-zinc-800 flex justify-end">
              <button
                 type="submit"
-                className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold py-4 px-12 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-3 transition-transform active:scale-95 text-lg"
+                disabled={loading}
+                className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold py-4 px-12 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-3 transition-transform active:scale-95 text-lg disabled:cursor-not-allowed"
             >
-                <Save size={20} />
-                Save & Calculate Points
+                <Save size={20} className={loading ? 'animate-spin' : ''} />
+                {loading ? 'Saving...' : 'Save & Calculate Points'}
             </button>
         </div>
       </form>

@@ -4,7 +4,18 @@ import { REWARDS } from '../services/mockData';
 import { Lock, ShoppingBag, Plus } from 'lucide-react';
 
 export const Shop: React.FC = () => {
-  const { user, buyReward } = useAppStore();
+  const { user, buyReward, loading } = useAppStore();
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-zinc-400">Loading shop...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -13,7 +24,7 @@ export const Shop: React.FC = () => {
             <h2 className="text-3xl font-bold text-white">Reward Shop</h2>
             <p className="text-zinc-400 mt-1">Redeem your hard-earned points for real-world treats.</p>
           </div>
-          
+
           <div className="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl flex items-center gap-4">
             <div>
                 <p className="text-zinc-500 text-xs font-bold uppercase">Balance</p>
@@ -52,10 +63,13 @@ export const Shop: React.FC = () => {
               
               <button
                 disabled={!canAfford}
-                onClick={() => buyReward(reward)}
+                onClick={async () => {
+                  const success = await buyReward(reward);
+                  if (!success) alert('Failed to purchase reward');
+                }}
                 className={`w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors mt-6 ${
-                    canAfford 
-                        ? 'bg-zinc-100 text-zinc-900 hover:bg-white shadow-lg' 
+                    canAfford
+                        ? 'bg-zinc-100 text-zinc-900 hover:bg-white shadow-lg'
                         : 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700'
                 }`}
               >
