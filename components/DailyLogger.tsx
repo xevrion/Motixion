@@ -84,18 +84,18 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
 
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <button
             onClick={() => setView(ViewState.DASHBOARD)}
-            className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 hover:border-zinc-700 transition-all text-zinc-400 hover:text-white"
+            className="p-2 sm:p-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 hover:border-zinc-700 transition-all text-zinc-400 hover:text-white flex-shrink-0"
         >
             <ArrowLeft size={20} />
         </button>
         <div>
-            <h2 className="text-3xl font-bold text-white">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
               {isEditing ? 'Edit Today\'s Log' : 'Log Activity'}
             </h2>
-            <p className="text-zinc-400 text-sm mt-1">
+            <p className="text-zinc-400 text-xs sm:text-sm mt-1">
               {isEditing
                 ? 'Update your performance for today. You can only have one log per day.'
                 : 'Record your performance for today.'}
@@ -115,11 +115,11 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl shadow-black/50">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            
+      <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl shadow-black/50">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-6 md:mb-8">
+
             {/* Left Column: Time & Hours */}
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
                 <InputGroup label="Wake Up Time" icon={Clock}>
                     <input
                         type="time"
@@ -192,7 +192,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
             </div>
 
             {/* Right Column: Tasks & Notes */}
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
                  <InputGroup label={`Task Completion`} icon={CheckSquare}>
                      <div className="grid grid-cols-2 gap-4">
                          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
@@ -242,16 +242,21 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
           </div>
         )}
 
-        <div className="pt-6 border-t border-zinc-800 flex justify-end">
+        <div className="pt-4 sm:pt-6 border-t border-zinc-800 flex justify-end">
              <button
                 type="submit"
                 disabled={loading}
-                className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold py-4 px-12 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-3 transition-transform active:scale-95 text-lg disabled:cursor-not-allowed"
+                className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold py-3 sm:py-4 px-6 sm:px-12 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-2 sm:gap-3 transition-transform active:scale-95 text-sm sm:text-base md:text-lg disabled:cursor-not-allowed w-full sm:w-auto justify-center"
             >
-                <Save size={20} className={loading ? 'animate-spin' : ''} />
-                {loading
-                  ? (isEditing ? 'Updating...' : 'Saving...')
-                  : (isEditing ? 'Update & Recalculate Points' : 'Save & Calculate Points')}
+                <Save size={18} className={loading ? 'animate-spin' : ''} />
+                <span className="hidden sm:inline">
+                  {loading
+                    ? (isEditing ? 'Updating...' : 'Saving...')
+                    : (isEditing ? 'Update & Recalculate Points' : 'Save & Calculate Points')}
+                </span>
+                <span className="sm:hidden">
+                  {loading ? 'Saving...' : 'Save & Calculate'}
+                </span>
             </button>
         </div>
       </form>

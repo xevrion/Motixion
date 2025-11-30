@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Edit3, ShoppingBag, User as UserIcon, Users, LogOut, Menu, X } from 'lucide-react';
+import { Home, Edit3, ShoppingBag, User as UserIcon, Users, Menu, X } from 'lucide-react';
 import { ViewState } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -119,20 +119,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
                   <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" />
                 </nav>
               </div>
-
-              <div className="mt-auto p-6 border-t border-zinc-900">
-                <button
-                  onClick={async () => {
-                    const { authService } = await import('../services/auth');
-                    await authService.signOut();
-                    window.location.reload();
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/5 rounded-xl transition-colors"
-                >
-                  <LogOut size={20} />
-                  <span className="text-sm font-medium">Sign Out</span>
-                </button>
-              </div>
             </motion.div>
           </motion.div>
         )}
@@ -168,20 +154,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
             <NavItem view={ViewState.SHOP} icon={ShoppingBag} label="Reward Shop" />
             <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" />
           </nav>
-        </div>
-
-        <div className="mt-auto p-6 border-t border-zinc-900">
-          <button
-            onClick={async () => {
-              const { authService } = await import('../services/auth');
-              await authService.signOut();
-              window.location.reload();
-            }}
-            className="flex items-center gap-3 w-full px-4 py-3 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/5 rounded-xl transition-colors"
-          >
-            <LogOut size={20} />
-            <span className="text-sm font-medium">Sign Out</span>
-          </button>
         </div>
       </aside>
 

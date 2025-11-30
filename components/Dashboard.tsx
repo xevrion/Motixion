@@ -51,10 +51,10 @@ export const Dashboard: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-white">Dashboard</h2>
-        <p className="text-zinc-400 mt-1">Welcome back, {user.username}. Here is your daily overview.</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h2>
+        <p className="text-sm sm:text-base text-zinc-400 mt-1">Welcome back, {user.username}. Here is your daily overview.</p>
       </div>
 
       {/* Header Stats - 4 Column Grid */}
@@ -93,20 +93,20 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Chart Section - Takes up 2 columns */}
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 p-8 rounded-2xl">
-          <div className="flex items-center justify-between mb-8">
+        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-8 gap-3">
             <div>
-                <h3 className="text-white font-bold text-lg">Activity History</h3>
-                <p className="text-zinc-400 text-sm">Points earned over the last 7 days</p>
+                <h3 className="text-white font-bold text-base sm:text-lg">Activity History</h3>
+                <p className="text-zinc-400 text-xs sm:text-sm">Points earned over the last 7 days</p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800">
+            <div className="flex items-center gap-2 text-xs text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800 w-fit">
                 <Calendar size={12} />
                 Last 7 Days
             </div>
           </div>
-          <div className="h-80 w-full">
+          <div className="h-64 sm:h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={last7Days} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#27272a" />
@@ -138,8 +138,8 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Breakdown Section - Takes up 1 column */}
-        <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col">
-            <h3 className="text-white font-bold text-lg mb-6">Today's Breakdown</h3>
+        <div className="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl flex flex-col">
+            <h3 className="text-white font-bold text-base sm:text-lg mb-4 sm:mb-6">Today's Breakdown</h3>
             
             {todayLog ? (
                 <div className="space-y-4 flex-1">

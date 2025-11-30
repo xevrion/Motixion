@@ -117,23 +117,23 @@ export const FriendView: React.FC = () => {
 
   if (!selectedFriend && friends.length === 0) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         <div>
-          <h2 className="text-3xl font-bold text-white">Friends</h2>
-          <p className="text-zinc-400 mt-1">Search and add friends to stay accountable together.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">Friends</h2>
+          <p className="text-sm sm:text-base text-zinc-400 mt-1">Search and add friends to stay accountable together.</p>
         </div>
 
         {friendRequests.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
-            <h3 className="text-white font-bold mb-4">Pending Requests</h3>
+          <div className="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 rounded-2xl">
+            <h3 className="text-white font-bold mb-4 text-base sm:text-lg">Pending Requests</h3>
             <div className="space-y-3">
               {friendRequests.map((request) => {
                 const requester = request.user_id === user.id ? request.friend : request.user;
                 return (
-                  <div key={request.id} className="flex items-center justify-between bg-zinc-950 p-4 rounded-xl">
-                    <span className="text-white">{requester.username}</span>
+                  <div key={request.id} className="flex items-center justify-between bg-zinc-950 p-3 sm:p-4 rounded-xl gap-2">
+                    <span className="text-white text-sm sm:text-base truncate">{requester.username}</span>
                     {request.friend_id === user.id && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-shrink-0">
                         <button onClick={() => handleAcceptRequest(request.id)} className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-400">
                           <Check size={16} />
                         </button>
@@ -149,19 +149,19 @@ export const FriendView: React.FC = () => {
           </div>
         )}
 
-        <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl">
-          <h3 className="text-white font-bold text-lg mb-4">Search for Friends</h3>
-          <div className="flex gap-3 mb-4">
+        <div className="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl">
+          <h3 className="text-white font-bold text-base sm:text-lg mb-4">Search for Friends</h3>
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search by username or email..."
-              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             />
-            <button onClick={handleSearch} className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-6 rounded-xl flex items-center gap-2">
-              <Search size={20} />
+            <button onClick={handleSearch} className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base">
+              <Search size={18} />
               Search
             </button>
           </div>
@@ -169,12 +169,12 @@ export const FriendView: React.FC = () => {
           {searchResults.length > 0 && (
             <div className="space-y-3">
               {searchResults.map((result) => (
-                <div key={result.id} className="flex items-center justify-between bg-zinc-950 p-4 rounded-xl">
-                  <div>
-                    <p className="text-white font-medium">{result.username}</p>
-                    <p className="text-zinc-500 text-sm">{result.email}</p>
+                <div key={result.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-zinc-950 p-4 rounded-xl gap-3">
+                  <div className="min-w-0">
+                    <p className="text-white font-medium text-sm sm:text-base truncate">{result.username}</p>
+                    <p className="text-zinc-500 text-xs sm:text-sm truncate">{result.email}</p>
                   </div>
-                  <button onClick={() => handleSendRequest(result.id)} className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 py-2 rounded-lg flex items-center gap-2">
+                  <button onClick={() => handleSendRequest(result.id)} className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm flex-shrink-0">
                     <UserPlus size={16} />
                     Add Friend
                   </button>
@@ -203,39 +203,39 @@ export const FriendView: React.FC = () => {
     : 0;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Friend Activity</h2>
-          <p className="text-zinc-400 mt-1">Keep track of {selectedFriend.username}'s progress and stay accountable.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">Friend Activity</h2>
+          <p className="text-sm sm:text-base text-zinc-400 mt-1">Keep track of {selectedFriend.username}'s progress and stay accountable.</p>
         </div>
 
         {/* Quick Comparison Badge */}
         {user && (
-          <div className="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl">
+          <div className="bg-zinc-900 border border-zinc-800 px-4 sm:px-6 py-3 rounded-xl w-fit">
             <p className="text-zinc-500 text-xs font-bold uppercase mb-1">Today's Race</p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="text-center">
                 <p className="text-xs text-zinc-500">You</p>
-                <p className="text-xl font-bold text-emerald-400">
+                <p className="text-lg sm:text-xl font-bold text-emerald-400">
                   {logs.find(l => l.date === new Date().toISOString().split('T')[0] && l.userId === user.id)?.score || 0}
                 </p>
               </div>
-              <div className="text-zinc-600 font-bold text-2xl">vs</div>
+              <div className="text-zinc-600 font-bold text-xl sm:text-2xl">vs</div>
               <div className="text-center">
                 <p className="text-xs text-zinc-500">Them</p>
-                <p className="text-xl font-bold text-blue-400">{todayPoints}</p>
+                <p className="text-lg sm:text-xl font-bold text-blue-400">{todayPoints}</p>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
 
         {/* Left Column: Profile Card & Quick Stats */}
-        <div className="space-y-6">
-             <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col items-center text-center">
+        <div className="space-y-4 sm:space-y-6">
+             <div className="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl flex flex-col items-center text-center">
                 <div className="w-32 h-32 rounded-full border-4 border-emerald-500 p-1 mb-6 relative">
                     <div className="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center text-4xl font-bold text-emerald-500">
                       {selectedFriend.username.charAt(0).toUpperCase()}
@@ -331,16 +331,16 @@ export const FriendView: React.FC = () => {
         </div>
 
         {/* Right Column: Detailed Chart */}
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-white font-bold text-lg">Weekly Performance</h3>
-            <div className="flex items-center gap-2 text-xs text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800">
+        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl flex flex-col">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-8 gap-3">
+            <h3 className="text-white font-bold text-base sm:text-lg">Weekly Performance</h3>
+            <div className="flex items-center gap-2 text-xs text-zinc-500 bg-zinc-950 px-3 py-1.5 rounded-full border border-zinc-800 w-fit">
                 <Calendar size={12} />
                 Last 7 Days
             </div>
           </div>
-          
-          <div className="flex-1 min-h-[300px]">
+
+          <div className="flex-1 min-h-[250px] sm:min-h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
              <BarChart data={last7Days} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#27272a" />
