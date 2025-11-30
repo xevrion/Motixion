@@ -124,5 +124,33 @@ export const friendService = {
     const { data, error } = await query;
     if (error) throw error;
     return data;
+  },
+
+  // Get all friends with today's log data
+  async getFriendsWithTodayData(userId: string) {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get accepted friends
+    const friends = await this.getFriends(userId);
+
+    // Get today's logs for all friends
+    const friendIds = friends.map(f => f.id);
+    const { data: logs, error } = await supabase
+      .from('daily_logs')
+      .select('*')
+      .in('user_id', friendIds)
+      .eq('date', today);
+
+    if (error) throw error;
+
+    // Merge friend data with today's log
+    return friends.map(friend => {
+      const todayLog = logs?.find(log => log.user_id === friend.id);
+      return {
+        ...friend,
+        todayPoints: todayLog?.total_points || 0,
+        todayLog: todayLog || null
+      };
+    });
   }
 };
