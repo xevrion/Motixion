@@ -196,11 +196,12 @@ netlify deploy --prod
 ## Future Enhancements
 
 - [ ] Push notifications
+- [ ] Global leaderboard
 - [ ] Weekly/monthly reports
-- [ ] More reward categories
 - [ ] Group accountability mode
 - [ ] Mobile app (React Native)
 - [ ] AI-powered insights
+- [ ] Personalized Shop (Custom rewards)
 
 ## License
 
