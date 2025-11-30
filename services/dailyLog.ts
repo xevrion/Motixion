@@ -15,6 +15,11 @@ export interface DailyLogInput {
 export const dailyLogService = {
   // Create or update a daily log
   async saveDailyLog(userId: string, logData: DailyLogInput) {
+    // Check if there's an existing log for today
+    const existingLog = await this.getTodayLog(userId);
+    const oldPoints = existingLog ? existingLog.total_points : 0;
+    const isNewLog = !existingLog; // Track if this is a new log
+
     // Calculate points using the existing logic
     const { total, breakdown } = calculatePoints({
       studyHours: logData.studyHours,
@@ -53,9 +58,14 @@ export const dailyLogService = {
 
     if (error) throw error;
 
-    // Update user balance and streak
-    await this.updateUserPoints(userId, total);
-    await this.updateStreak(userId, total);
+    // Update user balance: subtract old points, add new points
+    const pointsDelta = total - oldPoints;
+    await this.updateUserPoints(userId, pointsDelta);
+
+    // Update streak ONLY if this is a NEW log (not an edit)
+    if (isNewLog) {
+      await this.updateStreak(userId, total);
+    }
 
     return data;
   },

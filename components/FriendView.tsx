@@ -194,15 +194,45 @@ export const FriendView: React.FC = () => {
   const todayLog = friendLogs.find(l => l.date === new Date().toISOString().split('T')[0]);
   const todayPoints = todayLog ? todayLog.total_points : 0;
 
+  // Calculate detailed stats
+  const totalDaysLogged = friendLogs.length;
+  const totalHoursStudied = friendLogs.reduce((sum, log) => sum + log.study_hours, 0);
+  const averageDailyScore = totalDaysLogged > 0 ? Math.round(friendLogs.reduce((sum, log) => sum + log.total_points, 0) / totalDaysLogged) : 0;
+  const todayTasksPercent = todayLog && todayLog.tasks_assigned > 0
+    ? Math.round((todayLog.tasks_completed / todayLog.tasks_assigned) * 100)
+    : 0;
+
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-white">Friend Activity</h2>
-        <p className="text-zinc-400 mt-1">Keep track of {selectedFriend.username}'s progress and stay accountable.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Friend Activity</h2>
+          <p className="text-zinc-400 mt-1">Keep track of {selectedFriend.username}'s progress and stay accountable.</p>
+        </div>
+
+        {/* Quick Comparison Badge */}
+        {user && (
+          <div className="bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-xl">
+            <p className="text-zinc-500 text-xs font-bold uppercase mb-1">Today's Race</p>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <p className="text-xs text-zinc-500">You</p>
+                <p className="text-xl font-bold text-emerald-400">
+                  {logs.find(l => l.date === new Date().toISOString().split('T')[0] && l.userId === user.id)?.score || 0}
+                </p>
+              </div>
+              <div className="text-zinc-600 font-bold text-2xl">vs</div>
+              <div className="text-center">
+                <p className="text-xs text-zinc-500">Them</p>
+                <p className="text-xl font-bold text-blue-400">{todayPoints}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Left Column: Profile Card & Quick Stats */}
         <div className="space-y-6">
              <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl flex flex-col items-center text-center">
@@ -217,34 +247,87 @@ export const FriendView: React.FC = () => {
                 <h2 className="text-2xl font-bold text-white mb-1">{selectedFriend.username}</h2>
                 <p className="text-zinc-500 text-sm mb-6">Accountability Partner</p>
 
-                <div className="w-full grid grid-cols-2 gap-4">
-                     <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                <div className="w-full grid grid-cols-2 gap-3">
+                     <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
                         <div className="flex flex-col items-center">
-                            <span className="text-zinc-500 text-xs font-bold uppercase mb-1">Points Today</span>
-                            <span className="text-2xl font-bold text-white">{todayPoints}</span>
+                            <span className="text-zinc-500 text-xs font-bold uppercase mb-1">Today's Points</span>
+                            <span className="text-2xl font-bold text-emerald-400">{todayPoints}</span>
                         </div>
                      </div>
-                     <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                     <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
                         <div className="flex flex-col items-center">
                             <span className="text-zinc-500 text-xs font-bold uppercase mb-1">Streak</span>
                             <div className="flex items-center gap-1">
-                                <span className="text-2xl font-bold text-white">{selectedFriend.current_streak || 0}</span>
+                                <span className="text-2xl font-bold text-orange-400">{selectedFriend.current_streak || 0}</span>
                                 <Flame size={16} className="text-orange-500" fill="currentColor" />
                             </div>
+                        </div>
+                     </div>
+                     <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                        <div className="flex flex-col items-center">
+                            <span className="text-zinc-500 text-xs font-bold uppercase mb-1">Balance</span>
+                            <span className="text-2xl font-bold text-blue-400">{selectedFriend.balance || 0}</span>
+                        </div>
+                     </div>
+                     <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                        <div className="flex flex-col items-center">
+                            <span className="text-zinc-500 text-xs font-bold uppercase mb-1">Tasks Today</span>
+                            <span className="text-2xl font-bold text-purple-400">{todayTasksPercent}%</span>
                         </div>
                      </div>
                 </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 p-6 rounded-2xl flex items-center gap-4">
-                <div className="p-3 bg-indigo-500/20 rounded-full text-indigo-400">
-                    <Trophy size={24} />
-                </div>
-                <div>
-                    <p className="text-indigo-200 text-sm font-medium">Best Streak</p>
-                    <p className="text-2xl font-bold text-white">{selectedFriend.best_streak || 0} days</p>
+            {/* Lifetime Stats Card */}
+            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
+                <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                    <Trophy size={18} className="text-yellow-400" />
+                    Lifetime Stats
+                </h3>
+                <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                        <span className="text-zinc-400 text-sm">Total Hours Studied</span>
+                        <span className="text-white font-bold">{totalHoursStudied.toFixed(1)}h</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-zinc-400 text-sm">Days Logged</span>
+                        <span className="text-white font-bold">{totalDaysLogged}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-zinc-400 text-sm">Avg Daily Score</span>
+                        <span className="text-white font-bold">{averageDailyScore} pts</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-zinc-400 text-sm">Best Streak</span>
+                        <span className="text-white font-bold">{selectedFriend.best_streak || 0} days</span>
+                    </div>
                 </div>
             </div>
+
+            {/* Today's Details Card */}
+            {todayLog && (
+                <div className="bg-gradient-to-br from-emerald-900/20 to-green-900/20 border border-emerald-500/20 p-6 rounded-2xl">
+                    <h3 className="text-emerald-200 font-bold mb-4 text-sm">Today's Activity</h3>
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-emerald-300/70 text-xs">Wake Time</span>
+                            <span className="text-emerald-100 font-mono text-sm">{todayLog.wake_time}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-emerald-300/70 text-xs">Study Hours</span>
+                            <span className="text-emerald-100 font-mono text-sm">{todayLog.study_hours}h</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-emerald-300/70 text-xs">Tasks Done</span>
+                            <span className="text-emerald-100 font-mono text-sm">{todayLog.tasks_completed}/{todayLog.tasks_assigned}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-emerald-300/70 text-xs">Wasted Time</span>
+                            <span className="text-rose-300 font-mono text-sm">{todayLog.wasted_time}h</span>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
 
         {/* Right Column: Detailed Chart */}

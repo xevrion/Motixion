@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../services/store';
 import { ViewState } from '../types';
 import { ArrowLeft, Save, Clock, BookOpen, CheckSquare, AlertTriangle } from 'lucide-react';
@@ -20,9 +20,10 @@ const InputGroup: React.FC<InputGroupProps> = ({ label, children, icon: Icon }) 
 );
 
 export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ setView }) => {
-  const { addLog } = useAppStore();
+  const { addLog, logs, user } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     wakeTime: '07:00',
     studyHours: 0,
@@ -33,8 +34,39 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
     notes: ''
   });
 
+  // Load today's log if it exists
+  useEffect(() => {
+    if (user && logs.length > 0) {
+      const today = new Date().toISOString().split('T')[0];
+      const todayLog = logs.find(log => log.date === today && log.userId === user.id);
+
+      if (todayLog) {
+        setIsEditing(true);
+        setFormData({
+          wakeTime: todayLog.wakeTime,
+          studyHours: todayLog.studyHours,
+          wastedHours: todayLog.wastedHours,
+          breakHours: todayLog.breakHours,
+          tasksAssigned: todayLog.tasksAssigned,
+          tasksCompleted: todayLog.tasksCompleted,
+          notes: todayLog.notes
+        });
+      }
+    }
+  }, [user, logs]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // If editing, confirm the update
+    if (isEditing) {
+      const confirmed = window.confirm(
+        'Are you sure you want to update today\'s log?\n\n' +
+        'Your points will be recalculated based on the new values.'
+      );
+      if (!confirmed) return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -53,17 +85,35 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center gap-4 mb-8">
-        <button 
-            onClick={() => setView(ViewState.DASHBOARD)} 
+        <button
+            onClick={() => setView(ViewState.DASHBOARD)}
             className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 hover:border-zinc-700 transition-all text-zinc-400 hover:text-white"
         >
             <ArrowLeft size={20} />
         </button>
         <div>
-            <h2 className="text-3xl font-bold text-white">Log Activity</h2>
-            <p className="text-zinc-400 text-sm mt-1">Record your performance for today.</p>
+            <h2 className="text-3xl font-bold text-white">
+              {isEditing ? 'Edit Today\'s Log' : 'Log Activity'}
+            </h2>
+            <p className="text-zinc-400 text-sm mt-1">
+              {isEditing
+                ? 'Update your performance for today. You can only have one log per day.'
+                : 'Record your performance for today.'}
+            </p>
         </div>
       </div>
+
+      {isEditing && (
+        <div className="mb-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-3">
+          <div className="bg-blue-500/20 p-2 rounded-lg">
+            <Clock size={20} className="text-blue-400" />
+          </div>
+          <div>
+            <p className="text-blue-400 font-bold text-sm">Editing Today's Log</p>
+            <p className="text-zinc-400 text-xs mt-1">You can update this log until midnight. Only one log per day is allowed.</p>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl shadow-black/50">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -199,7 +249,9 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
                 className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold py-4 px-12 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-3 transition-transform active:scale-95 text-lg disabled:cursor-not-allowed"
             >
                 <Save size={20} className={loading ? 'animate-spin' : ''} />
-                {loading ? 'Saving...' : 'Save & Calculate Points'}
+                {loading
+                  ? (isEditing ? 'Updating...' : 'Saving...')
+                  : (isEditing ? 'Update & Recalculate Points' : 'Save & Calculate Points')}
             </button>
         </div>
       </form>
