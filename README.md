@@ -255,7 +255,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 ## Future Enhancements
 
 - [ ] Push notifications for daily reminders
-- [ ] Global leaderboard across all users
+- [x] Global leaderboard across all users
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)

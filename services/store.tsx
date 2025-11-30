@@ -3,7 +3,7 @@ import { User, DailyLog, Purchase, Reward } from '../types';
 import { supabase } from './supabase';
 import { dailyLogService } from './dailyLog';
 import { authService } from './auth';
-import { getAppDate } from './dateUtils';
+import { getToday } from './dateUtils';
 
 interface AppState {
   user: User | null;
@@ -142,7 +142,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           user_id: user.id,
           reward_name: reward.name,
           points_spent: reward.cost,
-          date: getAppDate()
+          date: getToday()
         });
 
       if (error) throw error;

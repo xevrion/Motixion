@@ -11,6 +11,7 @@ import { ViewState } from './types';
 import { authService } from './services/auth';
 import { Loader2 } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/react';
+import Leaderboard from './components/Leaderboard';
 
 const AppContent: React.FC = () => {
   const [currentView, setView] = useState<ViewState>(ViewState.DASHBOARD);
@@ -27,6 +28,8 @@ const AppContent: React.FC = () => {
         return <FriendView />;
       case ViewState.PROFILE:
         return <Profile />;
+      case ViewState.LEADERBOARD:
+        return <Leaderboard />;
       default:
         return <Dashboard />;
     }

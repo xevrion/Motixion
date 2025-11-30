@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Edit3, ShoppingBag, User as UserIcon, Users, Menu, X } from 'lucide-react';
+import { Home, Edit3, ShoppingBag, User as UserIcon, Users, Menu, X, BarChart } from 'lucide-react';
 import { ViewState } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -114,6 +114,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
 
                 <nav className="space-y-1" onClick={() => setMobileMenuOpen(false)}>
                   <NavItem view={ViewState.DASHBOARD} icon={Home} label="Dashboard" />
+                  <NavItem view={ViewState.LEADERBOARD} icon={BarChart} label="Leaderboard" />
                   <NavItem view={ViewState.FRIEND} icon={Users} label="Friends" />
                   <NavItem view={ViewState.SHOP} icon={ShoppingBag} label="Reward Shop" />
                   <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" />
@@ -150,6 +151,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
 
           <nav className="space-y-1">
             <NavItem view={ViewState.DASHBOARD} icon={Home} label="Dashboard" />
+            <NavItem view={ViewState.LEADERBOARD} icon={BarChart} label="Leaderboard" />
             <NavItem view={ViewState.FRIEND} icon={Users} label="Friends" />
             <NavItem view={ViewState.SHOP} icon={ShoppingBag} label="Reward Shop" />
             <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" />
@@ -180,6 +182,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
       >
         <NavItem view={ViewState.DASHBOARD} icon={Home} label="Home" mobile />
         <NavItem view={ViewState.FRIEND} icon={Users} label="Friends" mobile />
+        <NavItem view={ViewState.LEADERBOARD} icon={BarChart} label="Ranks" mobile />
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => setView(ViewState.LOG)}

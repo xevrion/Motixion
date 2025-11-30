@@ -52,5 +52,6 @@ export enum ViewState {
   FRIEND = 'FRIEND',
   SHOP = 'SHOP',
   PROFILE = 'PROFILE',
-  AI_COACH = 'AI_COACH'
+  AI_COACH = 'AI_COACH',
+  LEADERBOARD = 'LEADERBOARD'
 }

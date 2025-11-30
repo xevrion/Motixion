@@ -3,7 +3,7 @@ import { useAppStore } from '../services/store';
 import { friendService } from '../services/friends';
 import { BarChart, Bar, ResponsiveContainer, Cell, Tooltip, XAxis, CartesianGrid, YAxis } from 'recharts';
 import { Trophy, Flame, TrendingUp, Users, UserPlus, Search, Check, X, Medal, Crown, Award, Eye, Calendar } from 'lucide-react';
-import { getAppDate } from '../services/dateUtils';
+import { getToday } from '../services/dateUtils';
 
 export const FriendView: React.FC = () => {
   const { user, logs, loading } = useAppStore();
@@ -197,7 +197,7 @@ export const FriendView: React.FC = () => {
       date: log.date,
       score: log.total_points
     }));
-    const todayLog = friendLogs.find(l => l.date === getAppDate());
+    const todayLog = friendLogs.find(l => l.date === getToday());
     const todayPoints = todayLog ? todayLog.total_points : 0;
     const totalDaysLogged = friendLogs.length;
     const totalHoursStudied = friendLogs.reduce((sum, log) => sum + log.study_hours, 0);
@@ -334,7 +334,7 @@ export const FriendView: React.FC = () => {
   }
 
   // Leaderboard view
-  const myTodayLog = logs.find(l => l.date === getAppDate() && l.userId === user.id);
+  const myTodayLog = logs.find(l => l.date === getToday() && l.userId === user.id);
   const myTodayPoints = myTodayLog ? myTodayLog.score : 0;
 
   // Create leaderboard with user + friends

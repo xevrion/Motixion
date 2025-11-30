@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { getAppDate } from './dateUtils';
+import { getToday } from './dateUtils';
 
 export interface Friendship {
   id: string;
@@ -129,7 +129,7 @@ export const friendService = {
 
   // Get all friends with today's log data (with 5am cutoff)
   async getFriendsWithTodayData(userId: string) {
-    const today = getAppDate();
+    const today = getToday();
 
     // Get accepted friends
     const friends = await this.getFriends(userId);

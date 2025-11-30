@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../services/store';
 import { ViewState } from '../types';
 import { ArrowLeft, Save, Clock, BookOpen, CheckSquare, AlertTriangle } from 'lucide-react';
-import { getAppDate } from '../services/dateUtils';
+import { getToday } from '../services/dateUtils';
 
 interface InputGroupProps {
   label: string;
@@ -38,7 +38,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
   // Load today's log if it exists
   useEffect(() => {
     if (user && logs.length > 0) {
-      const today = getAppDate();
+      const today = getToday();
       const todayLog = logs.find(log => log.date === today && log.userId === user.id);
 
       if (todayLog) {
@@ -73,7 +73,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
 
     try {
       await addLog({
-        date: getAppDate(),
+        date: getToday(),
         ...formData
       });
       setView(ViewState.DASHBOARD);

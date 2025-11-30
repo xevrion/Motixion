@@ -15,7 +15,7 @@
  * If it's before 5am, returns yesterday's date
  * Otherwise returns today's date
  */
-export const getAppDate = (): string => {
+export const getToday = (): string => {
   const now = new Date();
   const hours = now.getHours();
 
@@ -34,7 +34,7 @@ export const getAppDate = (): string => {
  * Checks if a given date string matches today's app date
  */
 export const isToday = (dateString: string): boolean => {
-  return dateString === getAppDate();
+  return dateString === getToday();
 };
 
 /**
