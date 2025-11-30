@@ -10,7 +10,7 @@ import { Auth } from './components/Auth';
 import { ViewState } from './types';
 import { authService } from './services/auth';
 import { Loader2 } from 'lucide-react';
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from '@vercel/analytics/react';
 
 const AppContent: React.FC = () => {
   const [currentView, setView] = useState<ViewState>(ViewState.DASHBOARD);
