@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../services/store';
 import { ViewState } from '../types';
 import { ArrowLeft, Save, Clock, BookOpen, CheckSquare, AlertTriangle } from 'lucide-react';
+import { getAppDate } from '../services/dateUtils';
 
 interface InputGroupProps {
   label: string;
@@ -37,7 +38,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
   // Load today's log if it exists
   useEffect(() => {
     if (user && logs.length > 0) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getAppDate();
       const todayLog = logs.find(log => log.date === today && log.userId === user.id);
 
       if (todayLog) {
@@ -72,7 +73,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
 
     try {
       await addLog({
-        date: new Date().toISOString().split('T')[0],
+        date: getAppDate(),
         ...formData
       });
       setView(ViewState.DASHBOARD);
@@ -135,7 +136,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
                         <input
                             type="range"
                             min="0"
-                            max="16"
+                            max="22"
                             step="0.5"
                             value={formData.studyHours}
                             onChange={e => setFormData({ ...formData, studyHours: parseFloat(e.target.value) })}
@@ -143,9 +144,15 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
                         />
                          <div className="flex justify-between text-xs text-zinc-500 font-mono">
                             <span>0h</span>
-                            <span>8h</span>
-                            <span>16h</span>
+                            <span>11h</span>
+                            <span>22h</span>
                         </div>
+                        {formData.studyHours > 16 && (
+                          <div className="mt-3 text-xs text-amber-400/80 flex items-center gap-2 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                            <span>🌙</span>
+                            <span>Woah, all-nighter vibes! Remember to rest too~ 💫</span>
+                          </div>
+                        )}
                     </div>
                 </InputGroup>
 

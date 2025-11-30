@@ -3,6 +3,7 @@ import { useAppStore } from '../services/store';
 import { friendService } from '../services/friends';
 import { BarChart, Bar, ResponsiveContainer, Cell, Tooltip, XAxis, CartesianGrid, YAxis } from 'recharts';
 import { Trophy, Flame, TrendingUp, Users, UserPlus, Search, Check, X, Medal, Crown, Award, Eye, Calendar } from 'lucide-react';
+import { getAppDate } from '../services/dateUtils';
 
 export const FriendView: React.FC = () => {
   const { user, logs, loading } = useAppStore();
@@ -175,7 +176,7 @@ export const FriendView: React.FC = () => {
                 <div key={result.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-zinc-950 p-4 rounded-xl gap-3">
                   <div className="min-w-0">
                     <p className="text-white font-medium text-sm sm:text-base truncate">{result.username}</p>
-                    <p className="text-zinc-500 text-xs sm:text-sm truncate">{result.email}</p>
+                    {/* <p className="text-zinc-500 text-xs sm:text-sm truncate">{result.email}</p> */}
                   </div>
                   <button onClick={() => handleSendRequest(result.id)} className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm flex-shrink-0">
                     <UserPlus size={16} />
@@ -196,7 +197,7 @@ export const FriendView: React.FC = () => {
       date: log.date,
       score: log.total_points
     }));
-    const todayLog = friendLogs.find(l => l.date === new Date().toISOString().split('T')[0]);
+    const todayLog = friendLogs.find(l => l.date === getAppDate());
     const todayPoints = todayLog ? todayLog.total_points : 0;
     const totalDaysLogged = friendLogs.length;
     const totalHoursStudied = friendLogs.reduce((sum, log) => sum + log.study_hours, 0);
@@ -333,7 +334,7 @@ export const FriendView: React.FC = () => {
   }
 
   // Leaderboard view
-  const myTodayLog = logs.find(l => l.date === new Date().toISOString().split('T')[0] && l.userId === user.id);
+  const myTodayLog = logs.find(l => l.date === getAppDate() && l.userId === user.id);
   const myTodayPoints = myTodayLog ? myTodayLog.score : 0;
 
   // Create leaderboard with user + friends
@@ -487,7 +488,7 @@ export const FriendView: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Search by username or email..."
+            placeholder="Search by username"
             className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
           />
           <button onClick={handleSearch} className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base">

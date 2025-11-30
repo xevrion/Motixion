@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { calculatePoints } from './pointLogic';
+import { getAppDate } from './dateUtils';
 
 export interface DailyLogInput {
   date: string;
@@ -87,9 +88,9 @@ export const dailyLogService = {
     return data;
   },
 
-  // Get today's log
+  // Get today's log (with 5am cutoff)
   async getTodayLog(userId: string) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getAppDate();
     const { data, error } = await supabase
       .from('daily_logs')
       .select('*')

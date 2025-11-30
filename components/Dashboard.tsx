@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppStore } from '../services/store';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid, YAxis } from 'recharts';
 import { Flame, TrendingUp, CheckCircle, Clock, Calendar, Edit3 } from 'lucide-react';
+import { getAppDate } from '../services/dateUtils';
 
 export const Dashboard: React.FC = () => {
   const { user, logs, loading } = useAppStore();
@@ -21,7 +22,7 @@ export const Dashboard: React.FC = () => {
     .filter(l => l.userId === user.id)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const todayLog = userLogs.find(l => l.date === new Date().toISOString().split('T')[0]);
+  const todayLog = userLogs.find(l => l.date === getAppDate());
   const last7Days = userLogs.slice(-7);
 
   // Stats for cards
