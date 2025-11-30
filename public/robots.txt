@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Disallow private routes
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /friends
+Disallow: /shop
+
+# Allow public assets
+Allow: /assets/
+
+# Sitemap location
+Sitemap: https://motixion.vercel.app/sitemap.xml
+
+# Crawl delay (optional - be respectful)
+Crawl-delay: 1
+
