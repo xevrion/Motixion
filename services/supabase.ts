@@ -79,12 +79,27 @@ export interface Database {
           id: string;
           user_id: string;
           reward_name: string;
+          reward_id: string | null;
           points_spent: number;
           date: string;
           created_at: string;
         };
         Insert: Omit<Database['public']['Tables']['purchases']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['purchases']['Insert']>;
+      };
+      custom_rewards: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          cost: number;
+          icon: string;
+          category: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['custom_rewards']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['custom_rewards']['Insert']>;
       };
       streaks: {
         Row: {

@@ -63,9 +63,22 @@ CREATE TABLE public.purchases (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   reward_name TEXT NOT NULL,
+  reward_id TEXT,
   points_spent INTEGER NOT NULL,
   date DATE DEFAULT CURRENT_DATE,
   created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Custom rewards table
+CREATE TABLE public.custom_rewards (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  cost INTEGER NOT NULL,
+  icon TEXT NOT NULL,
+  category TEXT DEFAULT 'misc',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Streaks table
@@ -85,6 +98,7 @@ CREATE INDEX idx_friendships_user ON public.friendships(user_id);
 CREATE INDEX idx_friendships_friend ON public.friendships(friend_id);
 CREATE INDEX idx_tasks_user_date ON public.tasks(user_id, date DESC);
 CREATE INDEX idx_purchases_user ON public.purchases(user_id);
+CREATE INDEX idx_custom_rewards_user ON public.custom_rewards(user_id);
 
 -- Row Level Security (RLS) Policies
 
@@ -94,6 +108,7 @@ ALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.daily_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.purchases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.custom_rewards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.streaks ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
@@ -190,6 +205,23 @@ CREATE POLICY "Users can insert own purchases"
   ON public.purchases FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+-- Custom rewards policies
+CREATE POLICY "Users can view own custom rewards"
+  ON public.custom_rewards FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create own custom rewards"
+  ON public.custom_rewards FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own custom rewards"
+  ON public.custom_rewards FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own custom rewards"
+  ON public.custom_rewards FOR DELETE
+  USING (auth.uid() = user_id);
+
 -- Streaks policies
 CREATE POLICY "Users can view all streaks"
   ON public.streaks FOR SELECT
@@ -226,6 +258,20 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to update updated_at for custom_rewards
+CREATE TRIGGER update_custom_rewards_updated_at
+  BEFORE UPDATE ON public.custom_rewards
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Function to calculate daily points (called by Edge Function or client)
 CREATE OR REPLACE FUNCTION public.calculate_daily_points(

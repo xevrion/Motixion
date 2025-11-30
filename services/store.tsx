@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, DailyLog, Purchase, Reward } from '../types';
+import { User, DailyLog, Purchase, Reward, CustomReward } from '../types';
 import { supabase } from './supabase';
 import { dailyLogService } from './dailyLog';
 import { authService } from './auth';
+import { customRewardService, CustomRewardInput } from './customRewards';
 import { getToday } from './dateUtils';
 
 interface AppState {
@@ -10,9 +11,13 @@ interface AppState {
   friend: User | null;
   logs: DailyLog[];
   purchases: Purchase[];
+  customRewards: CustomReward[];
   loading: boolean;
   addLog: (logData: Omit<DailyLog, 'id' | 'userId' | 'score' | 'breakdown'>) => Promise<void>;
   buyReward: (reward: Reward) => Promise<boolean>;
+  addCustomReward: (rewardData: CustomRewardInput) => Promise<void>;
+  updateCustomReward: (rewardId: string, updates: Partial<CustomRewardInput>) => Promise<void>;
+  deleteCustomReward: (rewardId: string) => Promise<void>;
   refreshData: () => Promise<void>;
 }
 
@@ -23,6 +28,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [friend, setFriend] = useState<User | null>(null);
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [customRewards, setCustomRewards] = useState<CustomReward[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch current user data from Supabase
@@ -91,12 +97,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setPurchases(purchaseData.map(p => ({
           id: p.id,
           userId: p.user_id,
-          rewardId: p.id,
+          rewardId: p.reward_id || p.id,
           rewardName: p.reward_name,
           cost: p.points_spent,
           date: p.date
         })));
       }
+
+      // Fetch custom rewards
+      const userCustomRewards = await customRewardService.getUserCustomRewards(authUser.id);
+      setCustomRewards(userCustomRewards);
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
@@ -135,12 +145,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!user || user.balance < reward.cost) return false;
 
     try {
-      // Insert purchase
+      // Insert purchase (store reward_id if it's a custom reward)
       const { error } = await supabase
         .from('purchases')
         .insert({
           user_id: user.id,
           reward_name: reward.name,
+          reward_id: reward.isCustom ? reward.id : null,
           points_spent: reward.cost,
           date: getToday()
         });
@@ -164,12 +175,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const addCustomReward = async (rewardData: CustomRewardInput): Promise<void> => {
+    if (!user) return;
+
+    try {
+      await customRewardService.createCustomReward(user.id, rewardData);
+      await fetchUserData();
+    } catch (error) {
+      console.error('Error adding custom reward:', error);
+      throw error;
+    }
+  };
+
+  const updateCustomReward = async (rewardId: string, updates: Partial<CustomRewardInput>): Promise<void> => {
+    try {
+      await customRewardService.updateCustomReward(rewardId, updates);
+      await fetchUserData();
+    } catch (error) {
+      console.error('Error updating custom reward:', error);
+      throw error;
+    }
+  };
+
+  const deleteCustomReward = async (rewardId: string): Promise<void> => {
+    try {
+      await customRewardService.deleteCustomReward(rewardId);
+      await fetchUserData();
+    } catch (error) {
+      console.error('Error deleting custom reward:', error);
+      throw error;
+    }
+  };
+
   const refreshData = async () => {
     await fetchUserData();
   };
 
   return (
-    <AppContext.Provider value={{ user, friend, logs, purchases, loading, addLog, buyReward, refreshData }}>
+    <AppContext.Provider value={{ 
+      user, 
+      friend, 
+      logs, 
+      purchases, 
+      customRewards, 
+      loading, 
+      addLog, 
+      buyReward, 
+      addCustomReward, 
+      updateCustomReward, 
+      deleteCustomReward, 
+      refreshData 
+    }}>
       {children}
     </AppContext.Provider>
   );

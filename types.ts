@@ -35,6 +35,19 @@ export interface Reward {
   cost: number;
   icon: string;
   category: 'food' | 'leisure' | 'upgrade' | 'misc';
+  isCustom?: boolean;
+  userId?: string;
+}
+
+export interface CustomReward {
+  id: string;
+  userId: string;
+  name: string;
+  cost: number;
+  icon: string;
+  category: 'food' | 'leisure' | 'upgrade' | 'misc';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Purchase {
