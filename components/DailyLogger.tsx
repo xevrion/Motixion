@@ -111,7 +111,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
           </div>
           <div>
             <p className="text-blue-400 font-bold text-sm">Editing Today's Log</p>
-            <p className="text-zinc-400 text-xs mt-1">You can update this log until midnight. Only one log per day is allowed.</p>
+            <p className="text-zinc-400 text-xs mt-1">You can update this log until 5:00 AM. Only one log per day is allowed.</p>
           </div>
         </div>
       )}
