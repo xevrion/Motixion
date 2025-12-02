@@ -147,7 +147,7 @@ export const LandingPage: React.FC = () => {
             className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold tracking-tight leading-[1.1] px-2"
           >
             <span className="block text-white">Forge Your</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 animate-gradient">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 animate-gradient pb-1 leading-tight">
               Focus. Gamify
             </span>
             <span className="block text-white">Your Growth.</span>
