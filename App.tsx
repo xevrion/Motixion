@@ -7,6 +7,7 @@ import { Shop } from './components/Shop';
 import { FriendView } from './components/FriendView';
 import { Profile } from './components/Profile';
 import { Auth } from './components/Auth';
+import { LandingPage } from './components/LandingPage';
 import { ViewState } from './types';
 import { authService } from './services/auth';
 import { notificationService } from './services/notifications';
@@ -49,18 +50,33 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = window.location.pathname;
 
   useEffect(() => {
     // Check for existing session
     authService.getSession().then((session) => {
       setSession(session);
       setLoading(false);
+      
+      // Handle routing based on auth state
+      const currentPath = window.location.pathname;
+      if (session && currentPath === '/login') {
+        window.location.href = '/dashboard';
+      } else if (!session && currentPath !== '/' && currentPath !== '/login') {
+        window.location.href = '/login';
+      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = authService.onAuthStateChange(
       (_event, session) => {
         setSession(session);
+        const currentPath = window.location.pathname;
+        if (session && currentPath === '/login') {
+          window.location.href = '/dashboard';
+        } else if (!session && currentPath !== '/' && currentPath !== '/login') {
+          window.location.href = '/login';
+        }
       }
     );
 
@@ -74,6 +90,49 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Show landing page at root
+  if (pathname === '/' || pathname === '') {
+    return (
+      <>
+        <Analytics />
+        <SpeedInsights />
+        <LandingPage />
+      </>
+    );
+  }
+
+  // Show login page
+  if (pathname === '/login') {
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 size={48} className="text-emerald-500 animate-spin mx-auto mb-4" />
+            <p className="text-zinc-400">Loading...</p>
+          </div>
+        </div>
+      );
+    }
+
+    // If already logged in, redirect to dashboard
+    if (session) {
+      window.location.href = '/dashboard';
+      return null;
+    }
+
+    return (
+      <>
+        <Analytics />
+        <SpeedInsights />
+        <Auth onAuth={() => {
+          window.location.href = '/dashboard';
+        }} />
+      </>
+    );
+  }
+
+  // Protected routes (dashboard and all app routes)
+  // All other routes are treated as app routes (dashboard, shop, etc.)
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -86,7 +145,9 @@ const App: React.FC = () => {
   }
 
   if (!session) {
-    return <Auth onAuth={() => window.location.reload()} />;
+    // Redirect to login if not authenticated
+    window.location.href = '/login';
+    return null;
   }
 
   return (
