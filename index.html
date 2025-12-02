@@ -88,28 +88,66 @@
     </script>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind for dark mode
+      tailwind.config = {
+        darkMode: 'class',
+      };
+      
+      // Initialize theme before React loads
+      (function() {
+        const theme = localStorage.getItem('theme') || 'system';
+        let resolvedTheme = theme;
+        
+        if (theme === 'system') {
+          resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        
+        document.documentElement.classList.add(resolvedTheme);
+        document.documentElement.style.colorScheme = resolvedTheme;
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #09090b; /* Zinc 950 */
-        color: #e4e4e7; /* Zinc 200 */
+        background-color: #09090b; /* Zinc 950 - Dark mode default */
+        color: #e4e4e7; /* Zinc 200 - Dark mode default */
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
+      
+      /* Light mode styles */
+      .light body {
+        background-color: #ffffff;
+        color: #18181b; /* Zinc 900 */
+      }
+      
       /* Custom Scrollbar for sleek look */
       ::-webkit-scrollbar {
         width: 6px;
       }
       ::-webkit-scrollbar-track {
         background: #09090b;
+        transition: background-color 0.3s ease;
+      }
+      .light ::-webkit-scrollbar-track {
+        background: #f4f4f5;
       }
       ::-webkit-scrollbar-thumb {
         background: #27272a;
         border-radius: 3px;
+        transition: background-color 0.3s ease;
+      }
+      .light ::-webkit-scrollbar-thumb {
+        background: #d4d4d8;
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #3f3f46;
+      }
+      .light ::-webkit-scrollbar-thumb:hover {
+        background: #a1a1aa;
       }
     </style>
   <script type="importmap">

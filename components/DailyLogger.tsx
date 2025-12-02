@@ -12,7 +12,7 @@ interface InputGroupProps {
 
 const InputGroup: React.FC<InputGroupProps> = ({ label, children, icon: Icon }) => (
   <div className="flex flex-col gap-3">
-    <div className="flex items-center gap-2 text-zinc-400">
+    <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
         {Icon && <Icon size={16} />}
         <label className="text-xs font-bold uppercase tracking-wider">{label}</label>
     </div>
@@ -25,6 +25,7 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+
   const [formData, setFormData] = useState({
     wakeTime: '07:00',
     studyHours: 0,
@@ -35,7 +36,6 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
     notes: ''
   });
 
-  // Load today's log if it exists
   useEffect(() => {
     if (user && logs.length > 0) {
       const today = getToday();
@@ -59,11 +59,9 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If editing, confirm the update
     if (isEditing) {
       const confirmed = window.confirm(
-        'Are you sure you want to update today\'s log?\n\n' +
-        'Your points will be recalculated based on the new values.'
+        'Are you sure you want to update today\'s log?\n\nYour points will be recalculated based on the new values.'
       );
       if (!confirmed) return;
     }
@@ -85,194 +83,285 @@ export const DailyLogger: React.FC<{ setView: (v: ViewState) => void }> = ({ set
 
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+
+      {/* Header */}
       <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <button
-            onClick={() => setView(ViewState.DASHBOARD)}
-            className="p-2 sm:p-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 hover:border-zinc-700 transition-all text-zinc-400 hover:text-white flex-shrink-0"
+          onClick={() => setView(ViewState.DASHBOARD)}
+          className="p-2 sm:p-3 
+          bg-white dark:bg-zinc-900 
+          border border-zinc-200 dark:border-zinc-800
+          rounded-xl 
+          hover:bg-zinc-100 dark:hover:bg-zinc-800
+          hover:border-zinc-300 dark:hover:border-zinc-700
+          transition-all 
+          text-zinc-600 dark:text-zinc-400 
+          hover:text-zinc-900 dark:hover:text-white flex-shrink-0"
         >
-            <ArrowLeft size={20} />
+          <ArrowLeft size={20} />
         </button>
+
         <div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-              {isEditing ? 'Edit Today\'s Log' : 'Log Activity'}
-            </h2>
-            <p className="text-zinc-400 text-xs sm:text-sm mt-1">
-              {isEditing
-                ? 'Update your performance for today. You can only have one log per day.'
-                : 'Record your performance for today.'}
-            </p>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
+            {isEditing ? "Edit Today's Log" : "Log Activity"}
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            {isEditing
+              ? 'Update your performance for today. You can only have one log per day.'
+              : 'Record your performance for today.'}
+          </p>
         </div>
       </div>
 
+      {/* Editing Notice */}
       {isEditing && (
         <div className="mb-6 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-center gap-3">
           <div className="bg-blue-500/20 p-2 rounded-lg">
             <Clock size={20} className="text-blue-400" />
           </div>
           <div>
-            <p className="text-blue-400 font-bold text-sm">Editing Today's Log</p>
-            <p className="text-zinc-400 text-xs mt-1">You can update this log until 5:00 AM. Only one log per day is allowed.</p>
+            <p className="text-blue-400 font-bold text-sm">Editing Today’s Log</p>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">You can update this log until 5:00 AM.</p>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl shadow-black/50">
+      {/* Form */}
+      <form 
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-zinc-900 
+        border border-zinc-200 dark:border-zinc-800 
+        p-4 sm:p-6 md:p-8 
+        rounded-2xl shadow-2xl shadow-black/50"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-6 md:mb-8">
 
-            {/* Left Column: Time & Hours */}
-            <div className="space-y-6 md:space-y-8">
-                <InputGroup label="Wake Up Time" icon={Clock}>
-                    <input
-                        type="time"
-                        required
-                        value={formData.wakeTime}
-                        onChange={e => setFormData({ ...formData, wakeTime: e.target.value })}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-mono text-lg"
-                    />
-                </InputGroup>
+          {/* LEFT COLUMN */}
+          <div className="space-y-6 md:space-y-8">
 
-                <InputGroup label={`Study Hours (${formData.studyHours}h)`} icon={BookOpen}>
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
-                        <input
-                            type="range"
-                            min="0"
-                            max="22"
-                            step="0.5"
-                            value={formData.studyHours}
-                            onChange={e => setFormData({ ...formData, studyHours: parseFloat(e.target.value) })}
-                            className="w-full accent-emerald-500 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer mb-2"
-                        />
-                         <div className="flex justify-between text-xs text-zinc-500 font-mono">
-                            <span>0h</span>
-                            <span>11h</span>
-                            <span>22h</span>
-                        </div>
-                        {formData.studyHours > 16 && (
-                          <div className="mt-3 text-xs text-amber-400/80 flex items-center gap-2 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
-                            <span>🌙</span>
-                            <span>Woah, all-nighter vibes! Remember to rest too~ 💫</span>
-                          </div>
-                        )}
-                    </div>
-                </InputGroup>
+            {/* Wake Time */}
+            <InputGroup label="Wake Up Time" icon={Clock}>
+              <input
+                type="time"
+                required
+                value={formData.wakeTime}
+                onChange={e => setFormData({ ...formData, wakeTime: e.target.value })}
+                className="w-full bg-white dark:bg-zinc-950 
+                border border-zinc-300 dark:border-zinc-800 
+                rounded-xl p-4 
+                text-zinc-900 dark:text-white 
+                focus:outline-none focus:ring-2 focus:ring-emerald-500/50 
+                font-mono text-lg"
+              />
+            </InputGroup>
 
-                <InputGroup label={`Break Hours (${formData.breakHours}h)`} icon={Clock}>
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
-                        <input
-                            type="range"
-                            min="0"
-                            max="8"
-                            step="0.5"
-                            value={formData.breakHours}
-                            onChange={e => setFormData({ ...formData, breakHours: parseFloat(e.target.value) })}
-                            className="w-full accent-blue-500 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer mb-2"
-                        />
-                         <div className="flex justify-between text-xs text-zinc-500 font-mono">
-                            <span>0h</span>
-                            <span>4h</span>
-                            <span>8h</span>
-                        </div>
-                    </div>
-                </InputGroup>
+            {/* Study Hours */}
+            <InputGroup label={`Study Hours (${formData.studyHours}h)`} icon={BookOpen}>
+              <div className="bg-white dark:bg-zinc-950 
+              border border-zinc-300 dark:border-zinc-800 
+              rounded-xl p-4">
+                <input
+                  type="range"
+                  min="0"
+                  max="22"
+                  step="0.5"
+                  value={formData.studyHours}
+                  onChange={e => setFormData({ ...formData, studyHours: parseFloat(e.target.value) })}
+                  className="w-full accent-emerald-500 h-2 
+                  bg-zinc-300 dark:bg-zinc-800 
+                  rounded-lg cursor-pointer mb-2"
+                />
+                <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-500 font-mono">
+                  <span>0h</span><span>11h</span><span>22h</span>
+                </div>
 
-                <InputGroup label={`Wasted Time (${formData.wastedHours}h)`} icon={AlertTriangle}>
-                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
-                        <input
-                            type="range"
-                            min="0"
-                            max="10"
-                            step="0.5"
-                            value={formData.wastedHours}
-                            onChange={e => setFormData({ ...formData, wastedHours: parseFloat(e.target.value) })}
-                            className="w-full accent-rose-500 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer mb-2"
-                        />
-                        <div className="flex justify-between items-center mt-1">
-                             <div className="flex justify-between text-xs text-zinc-500 font-mono w-full mr-4">
-                                <span>0h</span>
-                                <span>5h</span>
-                                <span>10h</span>
-                            </div>
-                            <span className="text-xs text-rose-400 font-medium whitespace-nowrap">-5 pts/hr</span>
-                        </div>
-                    </div>
-                </InputGroup>
-            </div>
+                {formData.studyHours > 16 && (
+                  <div className="mt-3 text-xs text-amber-400/80 flex items-center gap-2 
+                  bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                    <span>🌙</span>
+                    <span>Woah, all-nighter vibes! Rest matters too.</span>
+                  </div>
+                )}
+              </div>
+            </InputGroup>
 
-            {/* Right Column: Tasks & Notes */}
-            <div className="space-y-6 md:space-y-8">
-                 <InputGroup label={`Task Completion`} icon={CheckSquare}>
-                     <div className="grid grid-cols-2 gap-4">
-                         <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
-                            <span className="text-xs text-zinc-500 mb-2 block uppercase font-medium">Assigned</span>
-                            <input
-                                type="number"
-                                min="1"
-                                value={formData.tasksAssigned}
-                                onChange={e => setFormData({ ...formData, tasksAssigned: parseInt(e.target.value) || 0 })}
-                                className="w-full bg-transparent border-b border-zinc-800 py-1 text-white text-2xl font-bold focus:outline-none focus:border-emerald-500 text-center"
-                            />
-                         </div>
-                         <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
-                            <span className="text-xs text-zinc-500 mb-2 block uppercase font-medium">Completed</span>
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.tasksCompleted}
-                                onChange={e => setFormData({ ...formData, tasksCompleted: parseInt(e.target.value) || 0 })}
-                                className="w-full bg-transparent border-b border-zinc-800 py-1 text-emerald-400 text-2xl font-bold focus:outline-none focus:border-emerald-500 text-center"
-                            />
-                         </div>
-                     </div>
-                     <div className="text-center mt-2 space-y-1">
-                        <div className="text-xs text-zinc-500">
-                            Completion: <span className={`font-bold ${
-                              formData.tasksAssigned > 0 && (formData.tasksCompleted / formData.tasksAssigned) * 100 > 100
-                                ? 'text-yellow-400'
-                                : 'text-white'
-                            }`}>
-                              {formData.tasksAssigned > 0 ? Math.round((formData.tasksCompleted / formData.tasksAssigned) * 100) : 0}%
-                            </span>
-                        </div>
-                        <div className="text-xs text-emerald-400/70">
-                          💡 Go over 100% for bonus points!
-                        </div>
-                     </div>
-                </InputGroup>
+            {/* Break Hours */}
+            <InputGroup label={`Break Hours (${formData.breakHours}h)`} icon={Clock}>
+              <div className="bg-white dark:bg-zinc-950 
+              border border-zinc-300 dark:border-zinc-800 
+              rounded-xl p-4">
 
-                <InputGroup label="Notes (Optional)">
-                    <textarea
-                        value={formData.notes}
-                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                        rows={6}
-                        placeholder="What did you learn today? Any obstacles?"
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none leading-relaxed"
-                    />
-                </InputGroup>
-            </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  step="0.5"
+                  value={formData.breakHours}
+                  onChange={e => setFormData({ ...formData, breakHours: parseFloat(e.target.value) })}
+                  className="w-full accent-blue-500 h-2 
+                  bg-zinc-300 dark:bg-zinc-800 
+                  rounded-lg cursor-pointer mb-2"
+                />
+
+                <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-500 font-mono">
+                  <span>0h</span><span>4h</span><span>8h</span>
+                </div>
+              </div>
+            </InputGroup>
+
+            {/* Wasted Hours */}
+            <InputGroup label={`Wasted Time (${formData.wastedHours}h)`} icon={AlertTriangle}>
+              <div className="bg-white dark:bg-zinc-950 
+              border border-zinc-300 dark:border-zinc-800 
+              rounded-xl p-4">
+
+                <input
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.5"
+                  value={formData.wastedHours}
+                  onChange={e => setFormData({ ...formData, wastedHours: parseFloat(e.target.value) })}
+                  className="w-full accent-rose-500 h-2 
+                  bg-zinc-300 dark:bg-zinc-800 
+                  rounded-lg cursor-pointer mb-2"
+                />
+
+                <div className="flex justify-between items-center mt-1">
+                  <div className="flex justify-between text-xs text-zinc-600 dark:text-zinc-500 font-mono w-full mr-4">
+                    <span>0h</span><span>5h</span><span>10h</span>
+                  </div>
+                  <span className="text-xs text-rose-400 font-medium whitespace-nowrap">
+                    -5 pts/hr
+                  </span>
+                </div>
+              </div>
+            </InputGroup>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="space-y-6 md:space-y-8">
+
+            {/* Task Completion */}
+            <InputGroup label="Task Completion" icon={CheckSquare}>
+              <div className="grid grid-cols-2 gap-4">
+
+                {/* Assigned */}
+                <div className="bg-white dark:bg-zinc-950 
+                border border-zinc-300 dark:border-zinc-800 rounded-xl p-4">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-500 uppercase font-medium block mb-2">
+                    Assigned
+                  </span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.tasksAssigned}
+                    onChange={e => setFormData({ ...formData, tasksAssigned: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-transparent 
+                    border-b border-zinc-300 dark:border-zinc-800 
+                    py-1 text-zinc-900 dark:text-white 
+                    text-2xl font-bold focus:outline-none 
+                    focus:border-emerald-500 text-center"
+                  />
+                </div>
+
+                {/* Completed */}
+                <div className="bg-white dark:bg-zinc-950 
+                border border-zinc-300 dark:border-zinc-800 rounded-xl p-4">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-500 uppercase font-medium block mb-2">
+                    Completed
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.tasksCompleted}
+                    onChange={e => setFormData({ ...formData, tasksCompleted: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-transparent 
+                    border-b border-zinc-300 dark:border-zinc-800 
+                    py-1 text-emerald-400 
+                    text-2xl font-bold focus:outline-none 
+                    focus:border-emerald-500 text-center"
+                  />
+                </div>
+              </div>
+
+              <div className="text-center mt-2 space-y-1">
+                <div className="text-xs text-zinc-600 dark:text-zinc-500">
+                  Completion:{" "}
+                  <span className={`font-bold ${
+                    formData.tasksAssigned > 0 && (formData.tasksCompleted / formData.tasksAssigned) * 100 > 100
+                      ? "text-yellow-400"
+                      : "text-zinc-900 dark:text-white"
+                  }`}>
+                    {formData.tasksAssigned > 0 
+                      ? Math.round((formData.tasksCompleted / formData.tasksAssigned) * 100) 
+                      : 0}%
+                  </span>
+                </div>
+                <div className="text-xs text-emerald-400/70">
+                  💡 Go over 100% for bonus points!
+                </div>
+              </div>
+            </InputGroup>
+
+            {/* Notes */}
+            <InputGroup label="Notes (Optional)">
+              <textarea
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                rows={6}
+                placeholder="What did you learn today? Any obstacles?"
+                className="w-full 
+                bg-white dark:bg-zinc-950 
+                border border-zinc-300 dark:border-zinc-800 
+                rounded-xl p-4 
+                text-zinc-900 dark:text-white 
+                text-sm focus:outline-none focus:ring-2 
+                focus:ring-emerald-500/50 resize-none leading-relaxed"
+              />
+            </InputGroup>
+          </div>
         </div>
 
+        {/* Error */}
         {error && (
           <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-rose-400 text-sm">
             {error}
           </div>
         )}
 
-        <div className="pt-4 sm:pt-6 border-t border-zinc-800 flex justify-end">
-             <button
-                type="submit"
-                disabled={loading}
-                className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold py-3 sm:py-4 px-6 sm:px-12 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center gap-2 sm:gap-3 transition-transform active:scale-95 text-sm sm:text-base md:text-lg disabled:cursor-not-allowed w-full sm:w-auto justify-center"
-            >
-                <Save size={18} className={loading ? 'animate-spin' : ''} />
-                <span className="hidden sm:inline">
-                  {loading
-                    ? (isEditing ? 'Updating...' : 'Saving...')
-                    : (isEditing ? 'Update & Recalculate Points' : 'Save & Calculate Points')}
-                </span>
-                <span className="sm:hidden">
-                  {loading ? 'Saving...' : 'Save & Calculate'}
-                </span>
-            </button>
+        {/* Submit */}
+        <div className="pt-4 sm:pt-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-emerald-500 hover:bg-emerald-400 
+            disabled:bg-zinc-300 dark:disabled:bg-zinc-800 
+            disabled:text-zinc-600 dark:disabled:text-zinc-500 
+            text-white 
+            font-bold py-3 sm:py-4 px-6 sm:px-12 
+            rounded-xl shadow-lg shadow-emerald-900/20 
+            flex items-center gap-2 sm:gap-3 
+            transition-transform active:scale-95 
+            text-sm sm:text-base md:text-lg 
+            disabled:cursor-not-allowed w-full sm:w-auto justify-center"
+          >
+            <Save size={18} className={loading ? "animate-spin" : ""} />
+
+            <span className="hidden sm:inline">
+              {loading
+                ? isEditing
+                  ? "Updating..."
+                  : "Saving..."
+                : isEditing
+                  ? "Update & Recalculate Points"
+                  : "Save & Calculate Points"}
+            </span>
+
+            <span className="sm:hidden">
+              {loading ? "Saving..." : "Save & Calculate"}
+            </span>
+          </button>
         </div>
       </form>
     </div>

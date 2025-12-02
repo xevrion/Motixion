@@ -36,25 +36,25 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-950 dark:bg-zinc-950 bg-white dark:bg-zinc-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center font-bold text-zinc-950 text-3xl shadow-lg shadow-emerald-500/20 mx-auto mb-4">
             M
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">Motixion</h1>
-          <p className="text-zinc-400">Gamify your productivity journey</p>
+          <h1 className="text-4xl font-bold text-white dark:text-white text-zinc-900 dark:text-white mb-2">Motixion</h1>
+          <p className="text-zinc-400 dark:text-zinc-400 text-zinc-600 dark:text-zinc-400">Gamify your productivity journey</p>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl shadow-black/50">
-          <div className="flex gap-2 mb-6 bg-zinc-950 p-1 rounded-xl">
+        <div className="bg-zinc-900 dark:bg-zinc-900 bg-white dark:bg-zinc-900 border border-zinc-800 dark:border-zinc-800 border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 shadow-2xl shadow-black/50">
+          <div className="flex gap-2 mb-6 bg-zinc-950 dark:bg-zinc-950 bg-zinc-100 dark:bg-zinc-950 p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setMode('signin')}
               className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
                 mode === 'signin'
                   ? 'bg-emerald-500 text-zinc-950'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  : 'text-zinc-400 dark:text-zinc-400 text-zinc-600 dark:text-zinc-400 hover:text-zinc-200 dark:hover:text-zinc-200 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
             >
               Sign In
@@ -65,7 +65,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
               className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
                 mode === 'signup'
                   ? 'bg-emerald-500 text-zinc-950'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  : 'text-zinc-400 dark:text-zinc-400 text-zinc-600 dark:text-zinc-400 hover:text-zinc-200 dark:hover:text-zinc-200 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
             >
               Sign Up
@@ -75,7 +75,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 text-zinc-600 dark:text-zinc-400 mb-2">
                   Username
                 </label>
                 <input
@@ -83,14 +83,14 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
                   required
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="w-full bg-zinc-950 dark:bg-zinc-950 bg-zinc-100 dark:bg-zinc-950 border border-zinc-800 dark:border-zinc-800 border-zinc-300 dark:border-zinc-800 rounded-xl p-3 text-white dark:text-white text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   placeholder="johndoe"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 text-zinc-600 dark:text-zinc-400 mb-2">
                 Email
               </label>
               <input
@@ -98,13 +98,13 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                className="w-full bg-zinc-950 dark:bg-zinc-950 bg-zinc-100 dark:bg-zinc-950 border border-zinc-800 dark:border-zinc-800 border-zinc-300 dark:border-zinc-800 rounded-xl p-3 text-white dark:text-white text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-400 text-zinc-600 dark:text-zinc-400 mb-2">
                 Password
               </label>
               <input
@@ -112,7 +112,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                className="w-full bg-zinc-950 dark:bg-zinc-950 bg-zinc-100 dark:bg-zinc-950 border border-zinc-800 dark:border-zinc-800 border-zinc-300 dark:border-zinc-800 rounded-xl p-3 text-white dark:text-white text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 placeholder="••••••••"
                 minLength={6}
               />
@@ -127,7 +127,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-zinc-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 dark:disabled:bg-zinc-800 disabled:bg-zinc-300 dark:disabled:bg-zinc-800 disabled:text-zinc-500 dark:disabled:text-zinc-500 disabled:text-zinc-600 dark:disabled:text-zinc-500 text-zinc-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>

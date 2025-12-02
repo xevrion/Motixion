@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppProvider } from './services/store';
+import { ThemeProvider } from './services/theme';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { DailyLogger } from './components/DailyLogger';
@@ -105,7 +106,7 @@ const App: React.FC = () => {
   if (pathname === '/login') {
     if (loading) {
       return (
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
           <div className="text-center">
             <Loader2 size={48} className="text-emerald-500 animate-spin mx-auto mb-4" />
             <p className="text-zinc-400">Loading...</p>
@@ -135,7 +136,7 @@ const App: React.FC = () => {
   // All other routes are treated as app routes (dashboard, shop, etc.)
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
           <Loader2 size={48} className="text-emerald-500 animate-spin mx-auto mb-4" />
           <p className="text-zinc-400">Loading Motixion...</p>
@@ -151,11 +152,13 @@ const App: React.FC = () => {
   }
 
   return (
-    <AppProvider>
-      <Analytics />
-      <SpeedInsights />
-      <AppContent />
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <Analytics />
+        <SpeedInsights />
+        <AppContent />
+      </AppProvider>
+    </ThemeProvider>
   );
 };
 
