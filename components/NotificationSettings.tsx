@@ -210,10 +210,37 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         </div>
       </div>
 
+      {/* Debug Info - Shows VAPID key status */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs">
+          <p className="text-zinc-400 mb-1">Debug Info:</p>
+          <p className="text-zinc-500 font-mono">
+            VAPID Key Present: {vapidKeyConfigured ? '✅ Yes' : '❌ No'}
+          </p>
+          <p className="text-zinc-500 font-mono">
+            Key Length: {import.meta.env.VITE_VAPID_PUBLIC_KEY?.length || 0} chars
+          </p>
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg flex items-start gap-2">
           <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
-          <span>{error}</span>
+          <div className="flex-1">
+            <p className="font-medium mb-1">{error}</p>
+            {!vapidKeyConfigured && (
+              <div className="mt-2 text-xs bg-red-500/5 p-2 rounded border border-red-500/10">
+                <p className="mb-1">The VAPID key is missing. Here's what to do:</p>
+                <ol className="list-decimal list-inside space-y-1 ml-1 text-red-300">
+                  <li>Go to <strong>Vercel Dashboard</strong> → Your Project → <strong>Settings</strong> → <strong>Environment Variables</strong></li>
+                  <li>Add: <code className="bg-red-500/10 px-1 rounded">VITE_VAPID_PUBLIC_KEY</code></li>
+                  <li>Set value to: <code className="bg-red-500/10 px-1 rounded break-all">BFwp_a7Ff4uG3crsEAgdo2o6C3oZ2lP2PbaWnjRelFvvG8rVK_DXVj9Xn9BMre8-TpmFDXVKR6k8CUB9Pb-yNiI</code></li>
+                  <li><strong>Select all environments</strong> (Production, Preview, Development)</li>
+                  <li><strong>Redeploy</strong> your project (very important!)</li>
+                </ol>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
