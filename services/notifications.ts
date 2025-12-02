@@ -1,9 +1,15 @@
 import { supabase } from './supabase';
 import { PushSubscription } from '../types';
 
-// VAPID public key - this should be moved to environment variables in production
-// For now, we'll use a placeholder that needs to be replaced with actual VAPID key
+// VAPID public key - loaded from environment variables
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+
+// Debug logging (will be removed in production)
+if (typeof window !== 'undefined') {
+  console.log('[VAPID Debug] Key present:', !!VAPID_PUBLIC_KEY);
+  console.log('[VAPID Debug] Key length:', VAPID_PUBLIC_KEY?.length || 0);
+  console.log('[VAPID Debug] Key starts with:', VAPID_PUBLIC_KEY?.substring(0, 10) || 'N/A');
+}
 
 export interface PushSubscriptionData {
   endpoint: string;
@@ -15,18 +21,36 @@ export interface PushSubscriptionData {
 
 // Convert base64 URL-safe to Uint8Array
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
+  // Remove any whitespace
+  const cleanBase64 = base64String.trim();
+  
+  // Calculate padding
+  const padding = '='.repeat((4 - cleanBase64.length % 4) % 4);
+  
+  // Convert URL-safe base64 to standard base64
+  const base64 = (cleanBase64 + padding)
     .replace(/-/g, '+')
     .replace(/_/g, '/');
   
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+  try {
+    // Decode base64 string
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    
+    // VAPID public key should be 65 bytes (uncompressed EC point: 0x04 + 32 bytes x + 32 bytes y)
+    if (outputArray.length !== 65) {
+      console.warn(`[VAPID] Unexpected key length: ${outputArray.length} bytes. Expected 65 bytes.`);
+    }
+    
+    return outputArray;
+  } catch (error) {
+    console.error('[VAPID] Failed to decode base64:', error);
+    throw new Error(`Invalid VAPID key format: ${error}`);
   }
-  return outputArray;
 }
 
 export const notificationService = {
@@ -110,16 +134,21 @@ export const notificationService = {
       // Convert VAPID key to Uint8Array
       let applicationServerKey: Uint8Array;
       try {
+        console.log('[Push] Attempting to subscribe with VAPID key length:', VAPID_PUBLIC_KEY.length);
         applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        console.log('[Push] VAPID key converted successfully, length:', applicationServerKey.length);
       } catch (keyError: any) {
+        console.error('[Push] VAPID key conversion failed:', keyError);
         throw new Error(`Failed to parse VAPID key: ${keyError.message}. Please check that VITE_VAPID_PUBLIC_KEY is correctly set.`);
       }
 
       // Subscribe to push
+      console.log('[Push] Subscribing with applicationServerKey length:', applicationServerKey.length);
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey
       });
+      console.log('[Push] Subscription successful! Endpoint:', subscription.endpoint.substring(0, 50) + '...');
 
       // Convert subscription to our format
       const subscriptionData: PushSubscriptionData = {
@@ -135,14 +164,34 @@ export const notificationService = {
 
       return subscriptionData;
     } catch (error: any) {
-      console.error('Error subscribing to push:', error);
+      console.error('[Push] Error subscribing:', error);
+      console.error('[Push] Error name:', error.name);
+      console.error('[Push] Error message:', error.message);
+      console.error('[Push] VAPID key was:', VAPID_PUBLIC_KEY ? `${VAPID_PUBLIC_KEY.substring(0, 20)}...` : 'MISSING');
       
       // Provide more helpful error messages
-      if (error.name === 'AbortError' || error.message?.includes('push service error')) {
-        throw new Error('Push subscription failed. This usually means the VAPID key is invalid or not configured. Please check your VITE_VAPID_PUBLIC_KEY environment variable.');
+      if (error.name === 'AbortError' || error.message?.includes('push service error') || error.message?.includes('Registration failed')) {
+        const detailedError = `Push subscription failed. 
+        
+Diagnostics:
+- VAPID key present: ${!!VAPID_PUBLIC_KEY}
+- VAPID key length: ${VAPID_PUBLIC_KEY?.length || 0}
+- Error: ${error.message || error.name}
+
+This usually means:
+1. The VAPID key is not set in Vercel environment variables, OR
+2. The app wasn't redeployed after adding the key, OR
+3. The VAPID key format is invalid
+
+Please verify:
+- VITE_VAPID_PUBLIC_KEY is set in Vercel
+- You've redeployed after adding it
+- The key value matches: BFwp_a7Ff4uG3crsEAgdo2o6C3oZ2lP2PbaWnjRelFvvG8rVK_DXVj9Xn9BMre8-TpmFDXVKR6k8CUB9Pb-yNiI`;
+        
+        throw new Error(detailedError);
       }
       
-      if (error.message?.includes('Invalid key')) {
+      if (error.message?.includes('Invalid key') || error.message?.includes('Invalid format')) {
         throw new Error('Invalid VAPID key format. Please regenerate your VAPID keys and update your environment variables.');
       }
       

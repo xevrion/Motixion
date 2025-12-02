@@ -35,9 +35,17 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     
     // Check if VAPID key is configured (check in env)
     const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-    setVapidKeyConfigured(!!vapidKey && vapidKey.trim().length > 0);
+    const keyConfigured = !!vapidKey && vapidKey.trim().length > 0;
+    setVapidKeyConfigured(keyConfigured);
     
-    if (!vapidKey || vapidKey.trim().length === 0) {
+    // Log for debugging
+    console.log('[NotificationSettings] VAPID key check:', {
+      present: !!vapidKey,
+      length: vapidKey?.length || 0,
+      startsWith: vapidKey?.substring(0, 10) || 'N/A'
+    });
+    
+    if (!keyConfigured) {
       setError('VAPID key not configured. Please add VITE_VAPID_PUBLIC_KEY to your Vercel environment variables and redeploy.');
     }
   };
