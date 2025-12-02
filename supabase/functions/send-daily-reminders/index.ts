@@ -15,22 +15,71 @@ interface PushSubscription {
   auth_key: string;
 }
 
-// Get today's date accounting for 5 AM cutoff
-// This function should match the client-side getToday() logic
-function getToday(): string {
+// Get today's date in a specific timezone, accounting for 5 AM cutoff
+// This matches the client-side getToday() logic which uses local time
+function getTodayInTimezone(timezone: string): string {
   const now = new Date();
-  const hours = now.getUTCHours();
   
-  // If before 5 AM UTC, use yesterday's date
-  let date = new Date(now);
-  if (hours < 5) {
-    date.setUTCDate(date.getUTCDate() - 1);
+  // Get current date/time components in user's timezone
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  
+  const parts = formatter.formatToParts(now);
+  const year = parts.find(p => p.type === 'year')?.value || '';
+  const month = parts.find(p => p.type === 'month')?.value || '';
+  const day = parts.find(p => p.type === 'day')?.value || '';
+  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+  
+  // If before 5 AM local time, use yesterday's date
+  let userDate = new Date(`${year}-${month}-${day}T00:00:00`);
+  if (hour < 5) {
+    userDate.setDate(userDate.getDate() - 1);
   }
   
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  // Format as YYYY-MM-DD
+  const finalYear = userDate.getFullYear();
+  const finalMonth = String(userDate.getMonth() + 1).padStart(2, '0');
+  const finalDay = String(userDate.getDate()).padStart(2, '0');
+  
+  return `${finalYear}-${finalMonth}-${finalDay}`;
+}
+
+// Check if current time in user's timezone matches reminder time (within 1 hour)
+function isReminderTime(reminderTime: string, userTimezone: string): boolean {
+  const now = new Date();
+  
+  // Get current time in user's timezone
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: userTimezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  
+  const parts = formatter.formatToParts(now);
+  const currentHour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+  const currentMinute = parseInt(parts.find(p => p.type === 'minute')?.value || '0');
+  
+  // Parse reminder time (format: HH:MM:SS or HH:MM)
+  const timeParts = reminderTime.split(':');
+  const reminderHour = parseInt(timeParts[0] || '20');
+  const reminderMinute = parseInt(timeParts[1] || '0');
+  
+  // Check if current time matches reminder time (within 1 hour window)
+  // Since cron runs hourly, we send if reminder time falls in current hour
+  const currentMinutes = currentHour * 60 + currentMinute;
+  const reminderMinutes = reminderHour * 60 + reminderMinute;
+  const timeDiff = Math.abs(currentMinutes - reminderMinutes);
+  
+  // Send if within 60 minute window
+  return timeDiff <= 60;
 }
 
 serve(async (req) => {
@@ -53,10 +102,9 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const today = getToday();
     const now = new Date();
-    const currentHour = now.getUTCHours();
-    const currentMinute = now.getUTCMinutes();
+    const currentUTCHour = now.getUTCHours();
+    const currentUTCMinute = now.getUTCMinutes();
 
     // Find users with enabled notifications
     const { data: preferences, error: prefError } = await supabase
@@ -87,26 +135,24 @@ serve(async (req) => {
 
     for (const pref of preferences) {
       try {
-        // Parse reminder time
-        const [reminderHour, reminderMinute] = pref.reminder_time.split(':').map(Number);
+        // Get user's timezone (default to UTC if not set)
+        const userTimezone = pref.timezone || 'UTC';
         
-        // Check if it's time for this user's reminder (within 30 minute window)
-        // Note: This is simplified - in production, handle timezones properly
-        const currentMinutes = currentHour * 60 + currentMinute;
-        const reminderMinutes = reminderHour * 60 + (reminderMinute || 0);
-        const timeDiff = Math.abs(currentMinutes - reminderMinutes);
-        
-        // Only send if within 30 minute window
-        if (timeDiff > 30) {
+        // Check if it's time for this user's reminder (in their timezone)
+        if (!isReminderTime(pref.reminder_time, userTimezone)) {
           continue;
         }
-
-        // Check if user has already logged today
+        
+        // Get today's date in user's timezone (matching client-side logic)
+        // Client uses local time with 5 AM cutoff
+        const userToday = getTodayInTimezone(userTimezone);
+        
+        // Check if user has already logged today (using user's local date)
         const { data: todayLog, error: logError } = await supabase
           .from('daily_logs')
           .select('id')
           .eq('user_id', pref.user_id)
-          .eq('date', today)
+          .eq('date', userToday)
           .maybeSingle();
 
         if (logError) {
@@ -175,6 +221,8 @@ serve(async (req) => {
         details: notificationsSent,
         errors: errors.length > 0 ? errors : undefined,
         timestamp: new Date().toISOString(),
+        checkedUsers: preferences.length,
+        processedUsers: preferences.length - errors.length,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
