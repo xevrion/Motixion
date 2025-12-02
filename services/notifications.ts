@@ -4,13 +4,6 @@ import { PushSubscription } from '../types';
 // VAPID public key - loaded from environment variables
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
-// Debug logging (will be removed in production)
-if (typeof window !== 'undefined') {
-  console.log('[VAPID Debug] Key present:', !!VAPID_PUBLIC_KEY);
-  console.log('[VAPID Debug] Key length:', VAPID_PUBLIC_KEY?.length || 0);
-  console.log('[VAPID Debug] Key starts with:', VAPID_PUBLIC_KEY?.substring(0, 10) || 'N/A');
-}
-
 export interface PushSubscriptionData {
   endpoint: string;
   keys: {
@@ -41,14 +34,8 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
       outputArray[i] = rawData.charCodeAt(i);
     }
     
-    // VAPID public key should be 65 bytes (uncompressed EC point: 0x04 + 32 bytes x + 32 bytes y)
-    if (outputArray.length !== 65) {
-      console.warn(`[VAPID] Unexpected key length: ${outputArray.length} bytes. Expected 65 bytes.`);
-    }
-    
     return outputArray;
   } catch (error) {
-    console.error('[VAPID] Failed to decode base64:', error);
     throw new Error(`Invalid VAPID key format: ${error}`);
   }
 }
@@ -88,10 +75,8 @@ export const notificationService = {
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/'
       });
-      console.log('Service Worker registered:', registration);
       return registration;
     } catch (error) {
-      console.error('Service Worker registration failed:', error);
       throw error;
     }
   },
@@ -130,25 +115,40 @@ export const notificationService = {
       throw new Error('Failed to register service worker');
     }
 
+    // Wait for service worker to be ready/activated
+    if (registration.waiting) {
+      // A new service worker is waiting, activate it
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      await navigator.serviceWorker.ready;
+    } else if (registration.installing) {
+      // Service worker is installing, wait for it
+      await new Promise((resolve) => {
+        registration.installing!.addEventListener('statechange', function() {
+          if (this.state === 'activated') {
+            resolve(undefined);
+          }
+        });
+      });
+    } else {
+      // Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+    }
+
+    let applicationServerKey: Uint8Array | null = null;
+    
     try {
       // Convert VAPID key to Uint8Array
-      let applicationServerKey: Uint8Array;
       try {
-        console.log('[Push] Attempting to subscribe with VAPID key length:', VAPID_PUBLIC_KEY.length);
         applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-        console.log('[Push] VAPID key converted successfully, length:', applicationServerKey.length);
       } catch (keyError: any) {
-        console.error('[Push] VAPID key conversion failed:', keyError);
         throw new Error(`Failed to parse VAPID key: ${keyError.message}. Please check that VITE_VAPID_PUBLIC_KEY is correctly set.`);
       }
-
+      
       // Subscribe to push
-      console.log('[Push] Subscribing with applicationServerKey length:', applicationServerKey.length);
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey
       });
-      console.log('[Push] Subscription successful! Endpoint:', subscription.endpoint.substring(0, 50) + '...');
 
       // Convert subscription to our format
       const subscriptionData: PushSubscriptionData = {
@@ -164,35 +164,13 @@ export const notificationService = {
 
       return subscriptionData;
     } catch (error: any) {
-      console.error('[Push] Error subscribing:', error);
-      console.error('[Push] Error name:', error.name);
-      console.error('[Push] Error message:', error.message);
-      console.error('[Push] VAPID key was:', VAPID_PUBLIC_KEY ? `${VAPID_PUBLIC_KEY.substring(0, 20)}...` : 'MISSING');
-      
-      // Provide more helpful error messages
+      // Provide helpful error messages
       if (error.name === 'AbortError' || error.message?.includes('push service error') || error.message?.includes('Registration failed')) {
-        const detailedError = `Push subscription failed. 
-        
-Diagnostics:
-- VAPID key present: ${!!VAPID_PUBLIC_KEY}
-- VAPID key length: ${VAPID_PUBLIC_KEY?.length || 0}
-- Error: ${error.message || error.name}
-
-This usually means:
-1. The VAPID key is not set in Vercel environment variables, OR
-2. The app wasn't redeployed after adding the key, OR
-3. The VAPID key format is invalid
-
-Please verify:
-- VITE_VAPID_PUBLIC_KEY is set in Vercel
-- You've redeployed after adding it
-- The key value matches: BFwp_a7Ff4uG3crsEAgdo2o6C3oZ2lP2PbaWnjRelFvvG8rVK_DXVj9Xn9BMre8-TpmFDXVKR6k8CUB9Pb-yNiI`;
-        
-        throw new Error(detailedError);
+        throw new Error('Push subscription failed. This may be a browser compatibility issue. Please try a different browser (Chrome, Firefox, or Edge).');
       }
       
       if (error.message?.includes('Invalid key') || error.message?.includes('Invalid format')) {
-        throw new Error('Invalid VAPID key format. Please regenerate your VAPID keys and update your environment variables.');
+        throw new Error('Invalid VAPID key format. Please check your VITE_VAPID_PUBLIC_KEY environment variable.');
       }
       
       throw new Error(error.message || 'Failed to subscribe to push notifications. Please try again.');

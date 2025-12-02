@@ -71,9 +71,16 @@ export const notificationPreferencesService = {
     return this.upsertPreferences(userId, { enabled: false });
   },
 
-  // Update reminder time
+  // Update reminder time (preserves enabled state)
   async updateReminderTime(userId: string, reminderTime: string): Promise<NotificationPreferences> {
-    return this.upsertPreferences(userId, { reminderTime });
+    // Get current preferences first to preserve enabled state
+    const currentPrefs = await this.getPreferences(userId);
+    
+    return this.upsertPreferences(userId, {
+      enabled: currentPrefs?.enabled ?? false,
+      reminderTime: reminderTime,
+      timezone: currentPrefs?.timezone
+    });
   }
 };
 

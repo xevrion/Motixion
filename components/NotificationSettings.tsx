@@ -24,6 +24,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   useEffect(() => {
     loadPreferences();
     checkSupport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const checkSupport = () => {
@@ -38,13 +39,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     const keyConfigured = !!vapidKey && vapidKey.trim().length > 0;
     setVapidKeyConfigured(keyConfigured);
     
-    // Log for debugging
-    console.log('[NotificationSettings] VAPID key check:', {
-      present: !!vapidKey,
-      length: vapidKey?.length || 0,
-      startsWith: vapidKey?.substring(0, 10) || 'N/A'
-    });
-    
     if (!keyConfigured) {
       setError('VAPID key not configured. Please add VITE_VAPID_PUBLIC_KEY to your Vercel environment variables and redeploy.');
     }
@@ -53,6 +47,10 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   const loadPreferences = async () => {
     try {
       setLoading(true);
+      // Clear any previous errors/success messages
+      setError('');
+      setSuccess('');
+      
       const prefs = await notificationPreferencesService.getPreferences(userId);
       
       if (prefs) {
@@ -61,15 +59,16 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         // Convert HH:MM:SS to HH:MM for input
         setReminderTime(prefs.reminderTime.substring(0, 5));
       } else {
-        // Create default preferences
+        // Create default preferences only if they don't exist
+        // Don't overwrite if they were just created during enable
         const defaultPrefs = await notificationPreferencesService.upsertPreferences(userId, {
           enabled: false,
           reminderTime: '20:00',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         });
         setPreferences(defaultPrefs);
-        setEnabled(false);
-        setReminderTime('20:00');
+        setEnabled(defaultPrefs.enabled);
+        setReminderTime(defaultPrefs.reminderTime.substring(0, 5));
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load notification preferences');
@@ -96,17 +95,18 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       // Subscribe to push notifications
       await notificationService.subscribeToPush(userId);
 
-      // Enable in preferences
-      await notificationPreferencesService.enableNotifications(userId);
+      // Enable in preferences (update database)
+      const updatedPrefs = await notificationPreferencesService.enableNotifications(userId);
       
-      setEnabled(true);
+      // Update state from database response to ensure sync
+      setPreferences(updatedPrefs);
+      setEnabled(updatedPrefs.enabled);
       setSuccess('Notifications enabled successfully!');
       
-      // Reload preferences
-      await loadPreferences();
     } catch (err: any) {
       setError(err.message || 'Failed to enable notifications');
-      setEnabled(false);
+      // Reload preferences from database to get actual state
+      await loadPreferences();
     } finally {
       setSaving(false);
     }
@@ -121,16 +121,18 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
       // Unsubscribe from push
       await notificationService.unsubscribeFromPush(userId);
 
-      // Disable in preferences
-      await notificationPreferencesService.disableNotifications(userId);
+      // Disable in preferences (update database)
+      const updatedPrefs = await notificationPreferencesService.disableNotifications(userId);
       
-      setEnabled(false);
+      // Update state from database response to ensure sync
+      setPreferences(updatedPrefs);
+      setEnabled(updatedPrefs.enabled);
       setSuccess('Notifications disabled successfully!');
       
-      // Reload preferences
-      await loadPreferences();
     } catch (err: any) {
       setError(err.message || 'Failed to disable notifications');
+      // Reload preferences from database to get actual state
+      await loadPreferences();
     } finally {
       setSaving(false);
     }
@@ -140,7 +142,15 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     setReminderTime(newTime);
     
     try {
-      await notificationPreferencesService.updateReminderTime(userId, `${newTime}:00`);
+      // Update reminder time (this preserves the enabled state)
+      const updatedPrefs = await notificationPreferencesService.updateReminderTime(userId, `${newTime}:00`);
+      
+      // Update state from database response to ensure sync
+      setPreferences(updatedPrefs);
+      setReminderTime(updatedPrefs.reminderTime.substring(0, 5));
+      // Preserve enabled state
+      setEnabled(updatedPrefs.enabled);
+      
       setSuccess('Reminder time updated!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
@@ -217,19 +227,6 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
           </div>
         </div>
       </div>
-
-      {/* Debug Info - Shows VAPID key status */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs">
-          <p className="text-zinc-400 mb-1">Debug Info:</p>
-          <p className="text-zinc-500 font-mono">
-            VAPID Key Present: {vapidKeyConfigured ? '✅ Yes' : '❌ No'}
-          </p>
-          <p className="text-zinc-500 font-mono">
-            Key Length: {import.meta.env.VITE_VAPID_PUBLIC_KEY?.length || 0} chars
-          </p>
-        </div>
-      )}
 
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg flex items-start gap-2">

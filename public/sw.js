@@ -2,8 +2,6 @@
 // This file handles push notifications and shows them to the user
 
 self.addEventListener('push', function(event) {
-  console.log('[Service Worker] Push Received.');
-  
   let notificationData = {
     title: 'Motixion Reminder',
     body: "Don't forget to log your daily activity!",
@@ -64,8 +62,6 @@ self.addEventListener('push', function(event) {
 
 // Handle notification clicks
 self.addEventListener('notificationclick', function(event) {
-  console.log('[Service Worker] Notification click received.');
-
   event.notification.close();
 
   if (event.action === 'dismiss') {
@@ -98,18 +94,16 @@ self.addEventListener('notificationclick', function(event) {
 
 // Handle notification close
 self.addEventListener('notificationclose', function(event) {
-  console.log('[Service Worker] Notification closed.');
+  // Notification was closed
 });
 
 // Service worker installation
 self.addEventListener('install', function(event) {
-  console.log('[Service Worker] Installing...');
   self.skipWaiting(); // Activate immediately
 });
 
 // Service worker activation
 self.addEventListener('activate', function(event) {
-  console.log('[Service Worker] Activating...');
   event.waitUntil(
     clients.claim() // Take control of all pages immediately
   );
