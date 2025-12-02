@@ -263,6 +263,9 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Personalized Shop (Custom rewards)
 - [x] Dark/light theme toggle
 - [ ] Export data functionality
+- [ ] Integrate wakatime api for tracking coding hours
+- [ ] Integrate calendar api for tracking tasks
+
 
 ## License
 
