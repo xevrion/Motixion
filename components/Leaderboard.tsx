@@ -97,7 +97,7 @@ const Leaderboard = () => {
                 <Star size={16} className="text-yellow-500" />
               )}
               {activeTab === 'streak' && (
-                <TrendingUp size={16} className="text-red-500" />
+                <TrendingUp size={16} className="text-emerald-500" />
               )}
             </div>
           </div>
