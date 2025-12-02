@@ -412,7 +412,23 @@ export const LandingPage: React.FC = () => {
         variants={containerVariants}
         className="py-16 sm:py-24 md:py-32 relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-blue-500/10"></div>
+        {/* Background Fade Gradient Blending */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          {/* Top gradient fade in */}
+          <div className="absolute inset-0" style={{
+            background: 'linear-gradient(to bottom, rgba(16, 185, 129, 0.00) 0%, rgba(16, 185, 129, 0.12) 25%, rgba(45, 212, 191,0.10) 60%, rgba(59, 130, 246, 0.10) 80%, rgba(16, 185, 129, 0.10) 100%)'
+          }} />
+          {/* Top fade-to-transparent */}
+          <div className="absolute top-0 left-0 right-0 h-24 sm:h-36 md:h-40 bg-gradient-to-b from-zinc-950 via-transparent to-transparent pointer-events-none" />
+          {/* Bottom fade-to-transparent */}
+          <div className="absolute bottom-0 left-0 right-0 h-28 sm:h-40 md:h-52 bg-gradient-to-t from-zinc-950 via-transparent to-transparent pointer-events-none" />
+        </motion.div>
+        {/* Content */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <motion.div variants={itemVariants}>
             <motion.div
