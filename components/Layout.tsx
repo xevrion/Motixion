@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Home, Edit3, ShoppingBag, User as UserIcon, Users, Menu, X, BarChart } from 'lucide-react';
+import React from 'react';
+import { Home, Edit3, ShoppingBag, User as UserIcon, Users, BarChart } from 'lucide-react';
 import { ViewState } from '../types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,7 +10,6 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const NavItem = ({ view, icon: Icon, label, mobile }: { view: ViewState; icon: any; label: string; mobile?: boolean }) => {
     const isActive = currentView === view;
@@ -55,7 +54,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
   return (
     <div className="flex flex-col md:flex-row h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-zinc-900 bg-zinc-950 z-50">
+      <div className="md:hidden flex items-center p-4 border-b border-zinc-900 bg-zinc-950 z-50">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -64,66 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
           <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-zinc-950 text-lg shadow-lg shadow-emerald-500/20">M</div>
           <h1 className="font-bold text-lg tracking-tight text-white">Motixion</h1>
         </motion.div>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 text-zinc-400 hover:text-white transition-colors"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </motion.button>
       </div>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 bg-black/50 z-40"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <motion.div
-              initial={{ x: -300 }}
-              animate={{ x: 0 }}
-              exit={{ x: -300 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="w-64 h-full bg-zinc-950 border-r border-zinc-900 flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-zinc-950 text-xl shadow-lg shadow-emerald-500/20">M</div>
-                  <div>
-                    <h1 className="font-bold text-xl tracking-tight text-white leading-none">Motixion</h1>
-                    <p className="text-xs text-zinc-500 mt-1 font-medium">Mobile</p>
-                  </div>
-                </div>
-
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setView(ViewState.LOG);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 transition-transform mb-6"
-                >
-                  <Edit3 size={18} strokeWidth={2.5} />
-                  <span>Log Activity</span>
-                </motion.button>
-
-                <nav className="space-y-1" onClick={() => setMobileMenuOpen(false)}>
-                  <NavItem view={ViewState.DASHBOARD} icon={Home} label="Dashboard" />
-                  <NavItem view={ViewState.LEADERBOARD} icon={BarChart} label="Leaderboard" />
-                  <NavItem view={ViewState.FRIEND} icon={Users} label="Friends" />
-                  <NavItem view={ViewState.SHOP} icon={ShoppingBag} label="Reward Shop" />
-                  <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" />
-                </nav>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Desktop Sidebar Navigation */}
       <aside className="hidden md:flex w-64 flex-shrink-0 border-r border-zinc-900 bg-zinc-950 flex-col">
