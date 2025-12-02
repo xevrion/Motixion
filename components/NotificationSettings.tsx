@@ -16,6 +16,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
   const [success, setSuccess] = useState('');
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>('default');
   const [isSupported, setIsSupported] = useState(false);
+  const [vapidKeyConfigured, setVapidKeyConfigured] = useState(false);
   
   const [reminderTime, setReminderTime] = useState('20:00');
   const [enabled, setEnabled] = useState(false);
@@ -30,6 +31,14 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
     setIsSupported(supported);
     if (supported) {
       setPermissionStatus(notificationService.getPermission());
+    }
+    
+    // Check if VAPID key is configured (check in env)
+    const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+    setVapidKeyConfigured(!!vapidKey && vapidKey.trim().length > 0);
+    
+    if (!vapidKey || vapidKey.trim().length === 0) {
+      setError('VAPID key not configured. Please add VITE_VAPID_PUBLIC_KEY to your Vercel environment variables and redeploy.');
     }
   };
 
@@ -156,6 +165,31 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
             <p className="text-zinc-400 text-sm">
               Your browser doesn't support push notifications. Please use a modern browser like Chrome, Firefox, or Edge.
             </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!vapidKeyConfigured) {
+    return (
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="text-yellow-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <h3 className="text-white font-bold mb-1">Configuration Required</h3>
+            <p className="text-zinc-400 text-sm mb-2">
+              VAPID key is not configured. Push notifications cannot work without it.
+            </p>
+            <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs font-mono text-zinc-300">
+              <p className="mb-1">To fix this:</p>
+              <ol className="list-decimal list-inside space-y-1 ml-2">
+                <li>Go to Vercel Dashboard → Your Project → Settings → Environment Variables</li>
+                <li>Add: <code className="bg-zinc-900 px-1 rounded">VITE_VAPID_PUBLIC_KEY</code></li>
+                <li>Value: Your VAPID public key</li>
+                <li>Redeploy your project</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>

@@ -78,9 +78,17 @@ export const notificationService = {
       throw new Error('Push notifications are not supported in this browser');
     }
 
-    if (!VAPID_PUBLIC_KEY) {
-      console.warn('VAPID public key not configured. Push notifications will not work.');
-      return null;
+    if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.trim() === '') {
+      const errorMsg = 'VAPID public key not configured. Please add VITE_VAPID_PUBLIC_KEY to your environment variables.';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    // Validate VAPID key format (should be base64 URL-safe, typically 87 chars)
+    if (VAPID_PUBLIC_KEY.length < 80) {
+      const errorMsg = `Invalid VAPID public key format. Key length: ${VAPID_PUBLIC_KEY.length}. Expected ~87 characters.`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
     // Check permission
@@ -99,10 +107,18 @@ export const notificationService = {
     }
 
     try {
+      // Convert VAPID key to Uint8Array
+      let applicationServerKey: Uint8Array;
+      try {
+        applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      } catch (keyError: any) {
+        throw new Error(`Failed to parse VAPID key: ${keyError.message}. Please check that VITE_VAPID_PUBLIC_KEY is correctly set.`);
+      }
+
       // Subscribe to push
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        applicationServerKey: applicationServerKey
       });
 
       // Convert subscription to our format
@@ -118,9 +134,19 @@ export const notificationService = {
       await this.saveSubscription(userId, subscriptionData);
 
       return subscriptionData;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error subscribing to push:', error);
-      throw error;
+      
+      // Provide more helpful error messages
+      if (error.name === 'AbortError' || error.message?.includes('push service error')) {
+        throw new Error('Push subscription failed. This usually means the VAPID key is invalid or not configured. Please check your VITE_VAPID_PUBLIC_KEY environment variable.');
+      }
+      
+      if (error.message?.includes('Invalid key')) {
+        throw new Error('Invalid VAPID key format. Please regenerate your VAPID keys and update your environment variables.');
+      }
+      
+      throw new Error(error.message || 'Failed to subscribe to push notifications. Please try again.');
     }
   },
 
