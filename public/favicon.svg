@@ -1,5 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#10b981"/>
-  <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" text-anchor="middle" fill="#09090b">M</text>
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="100" height="100" rx="22" fill="url(#logoGradient)"/>
+  <text x="50" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="900" text-anchor="middle" fill="#09090b" filter="url(#shadow)">M</text>
 </svg>
-
