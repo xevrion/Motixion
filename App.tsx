@@ -9,6 +9,7 @@ import { Profile } from './components/Profile';
 import { Auth } from './components/Auth';
 import { ViewState } from './types';
 import { authService } from './services/auth';
+import { notificationService } from './services/notifications';
 import { Loader2 } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/react';
 import Leaderboard from './components/Leaderboard';
@@ -62,6 +63,13 @@ const App: React.FC = () => {
         setSession(session);
       }
     );
+
+    // Register service worker for push notifications (if supported)
+    if (notificationService.isSupported()) {
+      notificationService.registerServiceWorker().catch((err) => {
+        console.warn('Service worker registration failed:', err);
+      });
+    }
 
     return () => subscription.unsubscribe();
   }, []);

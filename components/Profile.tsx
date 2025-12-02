@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppStore } from '../services/store';
 import { Award, Calendar, History, Mail, CalendarDays, LogOut } from 'lucide-react';
 import { AICoach } from './AICoach';
+import { NotificationSettings } from './NotificationSettings';
 
 export const Profile: React.FC = () => {
   const { user, purchases, loading, logs } = useAppStore();
@@ -85,6 +86,9 @@ export const Profile: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Notification Settings */}
+            <NotificationSettings userId={user.id} />
         </div>
 
         {/* Right Column: History */}

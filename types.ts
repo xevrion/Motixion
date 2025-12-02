@@ -59,6 +59,26 @@ export interface Purchase {
   date: string;
 }
 
+export interface NotificationPreferences {
+  userId: string;
+  enabled: boolean;
+  reminderTime: string; // HH:MM format
+  timezone: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PushSubscription {
+  id: string;
+  userId: string;
+  endpoint: string;
+  p256dhKey: string;
+  authKey: string;
+  userAgent: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export enum ViewState {
   DASHBOARD = 'DASHBOARD',
   LOG = 'LOG',

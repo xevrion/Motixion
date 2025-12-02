@@ -114,6 +114,32 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['streaks']['Row'], 'updated_at'>;
         Update: Partial<Database['public']['Tables']['streaks']['Insert']>;
       };
+      notification_preferences: {
+        Row: {
+          user_id: string;
+          enabled: boolean;
+          reminder_time: string;
+          timezone: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['notification_preferences']['Row'], 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['notification_preferences']['Insert']>;
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          endpoint: string;
+          p256dh_key: string;
+          auth_key: string;
+          user_agent: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['push_subscriptions']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['push_subscriptions']['Insert']>;
+      };
     };
   };
 }

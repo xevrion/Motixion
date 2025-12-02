@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "supabase": "https://esm.sh/@supabase/supabase-js@2"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"]
+  }
+}
+

@@ -92,6 +92,28 @@ CREATE TABLE public.streaks (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Notification preferences table
+CREATE TABLE public.notification_preferences (
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE PRIMARY KEY,
+  enabled BOOLEAN DEFAULT false,
+  reminder_time TIME DEFAULT '20:00:00',
+  timezone TEXT DEFAULT 'UTC',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Push subscriptions table
+CREATE TABLE public.push_subscriptions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  endpoint TEXT UNIQUE NOT NULL,
+  p256dh_key TEXT NOT NULL,
+  auth_key TEXT NOT NULL,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance
 CREATE INDEX idx_daily_logs_user_date ON public.daily_logs(user_id, date DESC);
 CREATE INDEX idx_friendships_user ON public.friendships(user_id);
@@ -99,6 +121,9 @@ CREATE INDEX idx_friendships_friend ON public.friendships(friend_id);
 CREATE INDEX idx_tasks_user_date ON public.tasks(user_id, date DESC);
 CREATE INDEX idx_purchases_user ON public.purchases(user_id);
 CREATE INDEX idx_custom_rewards_user ON public.custom_rewards(user_id);
+CREATE INDEX idx_notification_preferences_user ON public.notification_preferences(user_id);
+CREATE INDEX idx_push_subscriptions_user ON public.push_subscriptions(user_id);
+CREATE INDEX idx_push_subscriptions_endpoint ON public.push_subscriptions(endpoint);
 
 -- Row Level Security (RLS) Policies
 
@@ -109,6 +134,8 @@ ALTER TABLE public.daily_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.purchases ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.custom_rewards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notification_preferences ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.streaks ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
@@ -222,6 +249,36 @@ CREATE POLICY "Users can delete own custom rewards"
   ON public.custom_rewards FOR DELETE
   USING (auth.uid() = user_id);
 
+-- Notification preferences policies
+CREATE POLICY "Users can view own notification preferences"
+  ON public.notification_preferences FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create own notification preferences"
+  ON public.notification_preferences FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own notification preferences"
+  ON public.notification_preferences FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- Push subscriptions policies
+CREATE POLICY "Users can view own push subscriptions"
+  ON public.push_subscriptions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create own push subscriptions"
+  ON public.push_subscriptions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own push subscriptions"
+  ON public.push_subscriptions FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own push subscriptions"
+  ON public.push_subscriptions FOR DELETE
+  USING (auth.uid() = user_id);
+
 -- Streaks policies
 CREATE POLICY "Users can view all streaks"
   ON public.streaks FOR SELECT
@@ -271,6 +328,16 @@ $$ LANGUAGE plpgsql;
 -- Trigger to update updated_at for custom_rewards
 CREATE TRIGGER update_custom_rewards_updated_at
   BEFORE UPDATE ON public.custom_rewards
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Trigger to update updated_at for notification_preferences
+CREATE TRIGGER update_notification_preferences_updated_at
+  BEFORE UPDATE ON public.notification_preferences
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Trigger to update updated_at for push_subscriptions
+CREATE TRIGGER update_push_subscriptions_updated_at
+  BEFORE UPDATE ON public.push_subscriptions
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Function to calculate daily points (called by Edge Function or client)
