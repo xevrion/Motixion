@@ -127,6 +127,7 @@ export const Dashboard: React.FC = () => {
                 <Tooltip 
                   cursor={{ fill: '#27272a' }}
                   contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="score" radius={[6, 6, 0, 0]} barSize={50}>
                   {last7Days.map((entry, index) => (
