@@ -2,6 +2,7 @@
 // This file handles push notifications and shows them to the user
 
 self.addEventListener('push', function(event) {
+  // Default notification data
   let notificationData = {
     title: 'Motixion Reminder',
     body: "Don't forget to log your daily activity!",
@@ -17,32 +18,51 @@ self.addEventListener('push', function(event) {
   // Parse push payload if available
   if (event.data) {
     try {
-      const payload = event.data.json();
-      notificationData = {
-        ...notificationData,
-        ...payload,
-        data: {
-          url: payload.url || '/',
-          ...payload.data
+      // Try to parse as JSON first (web-push sends JSON string)
+      let payload;
+      try {
+        payload = event.data.json();
+      } catch (e) {
+        // If json() fails, try text()
+        const text = event.data.text();
+        if (text) {
+          try {
+            payload = JSON.parse(text);
+          } catch (parseError) {
+            // If it's not JSON, use as plain text
+            notificationData.body = text;
+            payload = null;
+          }
         }
-      };
-    } catch (e) {
-      const text = event.data.text();
-      if (text) {
-        notificationData.body = text;
       }
+
+      // Merge payload data if we got valid JSON
+      if (payload && typeof payload === 'object') {
+        notificationData = {
+          ...notificationData,
+          ...payload,
+          data: {
+            url: payload.url || payload.data?.url || '/',
+            ...(payload.data || {})
+          }
+        };
+      }
+    } catch (e) {
+      console.error('Error parsing push notification payload:', e);
+      // Use default notification data on error
     }
   }
 
+  // Show the notification
   const promiseChain = self.registration.showNotification(
     notificationData.title,
     {
       body: notificationData.body,
-      icon: notificationData.icon,
-      badge: notificationData.badge,
-      tag: notificationData.tag,
-      requireInteraction: notificationData.requireInteraction,
-      data: notificationData.data,
+      icon: notificationData.icon || '/favicon.svg',
+      badge: notificationData.badge || '/favicon.svg',
+      tag: notificationData.tag || 'daily-reminder',
+      requireInteraction: notificationData.requireInteraction || false,
+      data: notificationData.data || { url: '/' },
       vibrate: [200, 100, 200],
       actions: [
         {

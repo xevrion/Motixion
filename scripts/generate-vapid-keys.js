@@ -10,7 +10,7 @@
  *   "generate-vapid": "node scripts/generate-vapid-keys.js"
  */
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 // Generate VAPID keys
 function generateVapidKeys() {

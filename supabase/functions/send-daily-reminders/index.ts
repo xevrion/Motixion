@@ -51,7 +51,9 @@ function getTodayInTimezone(timezone: string): string {
   return `${finalYear}-${finalMonth}-${finalDay}`;
 }
 
-// Check if current time in user's timezone matches reminder time (within 1 hour)
+// Check if current time in user's timezone matches reminder time
+// Since cron runs every hour at :00, we check if the reminder hour matches the current hour
+// This ensures reminders are sent during the hour they're scheduled for
 function isReminderTime(reminderTime: string, userTimezone: string): boolean {
   const now = new Date();
   
@@ -72,14 +74,22 @@ function isReminderTime(reminderTime: string, userTimezone: string): boolean {
   const reminderHour = parseInt(timeParts[0] || '20');
   const reminderMinute = parseInt(timeParts[1] || '0');
   
-  // Check if current time matches reminder time (within 1 hour window)
-  // Since cron runs hourly, we send if reminder time falls in current hour
-  const currentMinutes = currentHour * 60 + currentMinute;
-  const reminderMinutes = reminderHour * 60 + reminderMinute;
-  const timeDiff = Math.abs(currentMinutes - reminderMinutes);
+  // Since cron runs every hour at :00, we send notifications if:
+  // 1. Current hour matches reminder hour (e.g., reminder at 8:30, cron runs at 8:00)
+  // 2. We're at the start of the hour (minute < 5) to catch reminders scheduled for this hour
+  // This ensures reminders are sent during the hour window they're scheduled for
   
-  // Send if within 60 minute window
-  return timeDiff <= 60;
+  if (reminderHour === currentHour) {
+    // If we're at the start of the hour (cron just ran), send for any minute in this hour
+    // If we're later in the hour, only send if reminder minute has passed
+    if (currentMinute < 5) {
+      return true; // Cron just ran, send for this hour
+    }
+    // Otherwise, only send if reminder minute has already passed (with small buffer)
+    return reminderMinute <= currentMinute + 5;
+  }
+  
+  return false;
 }
 
 serve(async (req) => {
@@ -106,13 +116,24 @@ serve(async (req) => {
     const currentUTCHour = now.getUTCHours();
     const currentUTCMinute = now.getUTCMinutes();
 
+    // Validate VAPID keys are set
+    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'VAPID keys not configured. Please set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY as Edge Function secrets.',
+          hint: 'Run: supabase secrets set VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=...'
+        }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      );
+    }
+
     // Find users with enabled notifications
     const { data: preferences, error: prefError } = await supabase
       .from('notification_preferences')
-      .select(`
-        *,
-        users(id, username)
-      `)
+      .select('*')
       .eq('enabled', true);
 
     if (prefError) {
@@ -130,8 +151,31 @@ serve(async (req) => {
       );
     }
 
+    // Fetch user data separately for usernames
+    const userIds = preferences.map(p => p.user_id);
+    const { data: users, error: usersError } = await supabase
+      .from('users')
+      .select('id, username')
+      .in('id', userIds);
+
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+      // Continue without usernames - not critical
+    }
+
+    // Create a map for quick username lookup
+    const userMap = new Map();
+    if (users) {
+      users.forEach(user => {
+        userMap.set(user.id, user.username);
+      });
+    }
+
     const notificationsSent = [];
     const errors = [];
+    const skipped = [];
+
+    console.log(`Processing ${preferences.length} users with enabled notifications`);
 
     for (const pref of preferences) {
       try {
@@ -140,6 +184,10 @@ serve(async (req) => {
         
         // Check if it's time for this user's reminder (in their timezone)
         if (!isReminderTime(pref.reminder_time, userTimezone)) {
+          skipped.push({
+            userId: pref.user_id,
+            reason: `Not reminder time (current timezone: ${userTimezone}, reminder: ${pref.reminder_time})`
+          });
           continue;
         }
         
@@ -156,12 +204,18 @@ serve(async (req) => {
           .maybeSingle();
 
         if (logError) {
-          errors.push(`Error checking log for user ${pref.user_id}: ${logError.message}`);
+          const errorMsg = `Error checking log for user ${pref.user_id}: ${logError.message}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
           continue;
         }
 
         // Skip if user already logged today
         if (todayLog) {
+          skipped.push({
+            userId: pref.user_id,
+            reason: 'Already logged today'
+          });
           continue;
         }
 
@@ -172,16 +226,43 @@ serve(async (req) => {
           .eq('user_id', pref.user_id);
 
         if (subError) {
-          errors.push(`Error getting subscriptions for user ${pref.user_id}: ${subError.message}`);
+          const errorMsg = `Error getting subscriptions for user ${pref.user_id}: ${subError.message}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
           continue;
         }
 
         if (!subscriptions || subscriptions.length === 0) {
+          skipped.push({
+            userId: pref.user_id,
+            reason: 'No push subscriptions found'
+          });
+          console.log(`User ${pref.user_id} has no push subscriptions`);
           continue;
         }
 
+        // Validate subscription data
+        const validSubscriptions = subscriptions.filter(sub => {
+          if (!sub.endpoint || !sub.p256dh_key || !sub.auth_key) {
+            console.warn(`Invalid subscription ${sub.id}: missing required fields`);
+            return false;
+          }
+          return true;
+        });
+
+        if (validSubscriptions.length === 0) {
+          skipped.push({
+            userId: pref.user_id,
+            reason: 'No valid push subscriptions'
+          });
+          continue;
+        }
+
+        // Get username for notification
+        const username = userMap.get(pref.user_id) || 'there';
+
         // Send notification to all user's devices
-        for (const sub of subscriptions) {
+        for (const sub of validSubscriptions) {
           try {
             await sendPushNotification(
               {
@@ -191,26 +272,36 @@ serve(async (req) => {
               },
               {
                 title: '📝 Time to Log Your Activity!',
-                body: `Hey ${(pref.users as any)?.username || 'there'}! Don't forget to log your daily activity and keep your streak going! 🔥`,
+                body: `Hey ${username}! Don't forget to log your daily activity and keep your streak going! 🔥`,
                 url: '/',
                 icon: '/favicon.svg',
               }
             );
-            notificationsSent.push({ userId: pref.user_id, endpoint: sub.endpoint });
+            notificationsSent.push({ userId: pref.user_id, username, endpoint: sub.endpoint.substring(0, 50) + '...' });
+            console.log(`✓ Notification sent to user ${pref.user_id} (${username})`);
           } catch (err: any) {
+            const errorMsg = `Error sending to ${sub.endpoint?.substring(0, 50)}...: ${err.message}`;
+            console.error(errorMsg);
+            
             // If subscription is invalid (410 Gone), delete it
-            if (err.message?.includes('410') || err.message?.includes('expired') || err.message?.includes('Gone')) {
-              await supabase
-                .from('push_subscriptions')
-                .delete()
-                .eq('id', sub.id);
-              console.log(`Removed expired subscription: ${sub.id}`);
+            if (err.statusCode === 410 || err.message?.includes('410') || err.message?.includes('expired') || err.message?.includes('Gone')) {
+              try {
+                await supabase
+                  .from('push_subscriptions')
+                  .delete()
+                  .eq('id', sub.id);
+                console.log(`Removed expired subscription: ${sub.id}`);
+              } catch (deleteErr: any) {
+                console.error(`Failed to delete expired subscription ${sub.id}:`, deleteErr.message);
+              }
             }
-            errors.push(`Error sending to ${sub.endpoint}: ${err.message}`);
+            errors.push(errorMsg);
           }
         }
       } catch (err: any) {
-        errors.push(`Error processing user ${pref.user_id}: ${err.message}`);
+        const errorMsg = `Error processing user ${pref.user_id}: ${err.message}`;
+        console.error(errorMsg, err);
+        errors.push(errorMsg);
       }
     }
 
@@ -220,9 +311,16 @@ serve(async (req) => {
         notificationsSent: notificationsSent.length,
         details: notificationsSent,
         errors: errors.length > 0 ? errors : undefined,
+        skipped: skipped.length > 0 ? skipped : undefined,
         timestamp: new Date().toISOString(),
         checkedUsers: preferences.length,
         processedUsers: preferences.length - errors.length,
+        summary: {
+          total: preferences.length,
+          sent: notificationsSent.length,
+          skipped: skipped.length,
+          errors: errors.length
+        }
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -244,6 +342,26 @@ serve(async (req) => {
   }
 });
 
+// Helper function to ensure base64 string is valid
+function validateBase64Key(key: string, keyName: string): string {
+  if (!key || key.trim().length === 0) {
+    throw new Error(`Invalid ${keyName}: key is empty`);
+  }
+  
+  // Remove any whitespace
+  const cleanKey = key.trim();
+  
+  // Try to decode to verify it's valid base64
+  try {
+    // In Deno, we can use atob to validate
+    atob(cleanKey.replace(/-/g, '+').replace(/_/g, '/'));
+  } catch (e) {
+    throw new Error(`Invalid ${keyName} format: not valid base64`);
+  }
+  
+  return cleanKey;
+}
+
 // Helper function to send push notification using web-push protocol
 async function sendPushNotification(
   subscription: PushSubscription,
@@ -253,19 +371,29 @@ async function sendPushNotification(
   // Using esm.sh for compatibility
   const { default: webpush } = await import('https://esm.sh/web-push@3.6.6');
   
-  // Set VAPID details
+  // Validate and set VAPID details
+  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    throw new Error('VAPID keys not configured');
+  }
+  
   webpush.setVapidDetails(
     `mailto:${VAPID_EMAIL}`,
     VAPID_PUBLIC_KEY,
     VAPID_PRIVATE_KEY
   );
 
+  // Validate and prepare subscription keys
+  // Keys are stored as base64, web-push accepts base64url but also handles base64
+  const p256dhKey = validateBase64Key(subscription.p256dh_key, 'p256dh');
+  const authKey = validateBase64Key(subscription.auth_key, 'auth');
+
   // Prepare subscription object in web-push format
+  // web-push library accepts base64 strings directly
   const pushSubscription = {
     endpoint: subscription.endpoint,
     keys: {
-      p256dh: subscription.p256dh_key,
-      auth: subscription.auth_key,
+      p256dh: p256dhKey,
+      auth: authKey,
     },
   };
 
@@ -284,12 +412,17 @@ async function sendPushNotification(
   try {
     // Send notification
     await webpush.sendNotification(pushSubscription, notificationPayload);
-    console.log(`Notification sent to ${subscription.endpoint}`);
+    console.log(`Notification sent to ${subscription.endpoint.substring(0, 50)}...`);
   } catch (error: any) {
     // Handle specific error codes
     if (error.statusCode === 410) {
       // Subscription expired
       throw new Error('Subscription expired (410)');
+    }
+    if (error.statusCode === 400) {
+      // Bad request - might be invalid key format
+      console.error('Bad request error - key format issue?', error.message);
+      throw new Error(`Invalid subscription format: ${error.message}`);
     }
     throw error;
   }
