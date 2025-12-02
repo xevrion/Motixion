@@ -269,7 +269,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 
 ## License
 
-MIT License - feel free to use this for your own productivity journey!
+[MIT License](LICENSE.md)
 
 ---
 
