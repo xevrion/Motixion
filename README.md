@@ -261,7 +261,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [ ] Mobile app (React Native)
 - [ ] AI-powered insights and coaching
 - [x] Personalized Shop (Custom rewards)
-- [ ] Dark/light theme toggle
+- [x] Dark/light theme toggle
 - [ ] Export data functionality
 
 ## License
