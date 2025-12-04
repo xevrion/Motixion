@@ -337,6 +337,58 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- Function to sync user avatar from auth.users on sign-in
+CREATE OR REPLACE FUNCTION public.sync_user_avatar()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.users u
+  SET avatar_url = COALESCE(
+    NEW.raw_user_meta_data->>'avatar_url',
+    NEW.raw_user_meta_data->>'picture',
+    u.avatar_url  -- Keep existing if no new avatar found
+  )
+  WHERE u.id = NEW.id;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to manually sync current user's avatar (callable from client)
+CREATE OR REPLACE FUNCTION public.sync_my_avatar()
+RETURNS void AS $$
+DECLARE
+  v_user_id UUID;
+  v_avatar_url TEXT;
+BEGIN
+  v_user_id := auth.uid();
+  IF v_user_id IS NULL THEN
+    RETURN;
+  END IF;
+  
+  -- Get avatar from auth.users
+  SELECT COALESCE(
+    raw_user_meta_data->>'avatar_url',
+    raw_user_meta_data->>'picture'
+  ) INTO v_avatar_url
+  FROM auth.users
+  WHERE id = v_user_id;
+  
+  -- Update public.users if avatar found
+  IF v_avatar_url IS NOT NULL THEN
+    UPDATE public.users
+    SET avatar_url = v_avatar_url
+    WHERE id = v_user_id;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to sync avatar on auth.users update (fires on OAuth sign-in)
+CREATE TRIGGER on_auth_user_updated
+  AFTER UPDATE ON auth.users
+  FOR EACH ROW 
+  WHEN (OLD.raw_user_meta_data IS DISTINCT FROM NEW.raw_user_meta_data)
+  EXECUTE FUNCTION public.sync_user_avatar();
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$

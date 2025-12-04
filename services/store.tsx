@@ -40,6 +40,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
 
+      // Sync avatar from Google OAuth on every sign-in
+      try {
+        await supabase.rpc('sync_my_avatar');
+      } catch (syncError) {
+        // Silently fail if function doesn't exist yet (for backwards compatibility)
+        console.warn('Avatar sync failed (this is okay if function not deployed yet):', syncError);
+      }
+
       const { data: userData, error } = await supabase
         .from('users')
         .select('*')
