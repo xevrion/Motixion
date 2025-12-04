@@ -44,8 +44,8 @@ export const friendService = {
       .from('friendships')
       .select(`
         *,
-        user:users!friendships_user_id_fkey(id, username, avatar_url, balance, current_streak, best_streak),
-        friend:users!friendships_friend_id_fkey(id, username, avatar_url, balance, current_streak, best_streak)
+        user:users!friendships_user_id_fkey(id, username, avatar_url, balance, total_points_earned, current_streak, best_streak),
+        friend:users!friendships_friend_id_fkey(id, username, avatar_url, balance, total_points_earned, current_streak, best_streak)
       `)
       .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
       .eq('status', 'pending');
@@ -60,8 +60,8 @@ export const friendService = {
       .from('friendships')
       .select(`
         *,
-        user:users!friendships_user_id_fkey(id, username, avatar_url, balance, current_streak, best_streak),
-        friend:users!friendships_friend_id_fkey(id, username, avatar_url, balance, current_streak, best_streak)
+        user:users!friendships_user_id_fkey(id, username, avatar_url, balance, total_points_earned, current_streak, best_streak),
+        friend:users!friendships_friend_id_fkey(id, username, avatar_url, balance, total_points_earned, current_streak, best_streak)
       `)
       .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
       .eq('status', 'accepted');

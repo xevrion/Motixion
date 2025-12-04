@@ -362,6 +362,17 @@ export const FriendView: React.FC = () => {
                 {pendingRequest ? "Profile Stats" : "Lifetime Stats"}
               </h3>
               <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                    <Award size={14} className="text-yellow-500" />
+                    Level
+                  </span>
+                  <span className="text-zinc-900 dark:text-white font-bold">
+                    {selectedFriend.total_points_earned !== undefined 
+                      ? Math.floor((selectedFriend.total_points_earned || 0) / 100) + 1
+                      : Math.floor((selectedFriend.balance || 0) / 100) + 1}
+                  </span>
+                </div>
                 {!pendingRequest && (
                   <>
                     <div className="flex justify-between items-center">
