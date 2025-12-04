@@ -44,8 +44,8 @@ export const friendService = {
       .from('friendships')
       .select(`
         *,
-        user:users!friendships_user_id_fkey(id, username, avatar_url),
-        friend:users!friendships_friend_id_fkey(id, username, avatar_url)
+        user:users!friendships_user_id_fkey(id, username, avatar_url, balance, current_streak, best_streak),
+        friend:users!friendships_friend_id_fkey(id, username, avatar_url, balance, current_streak, best_streak)
       `)
       .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
       .eq('status', 'pending');
@@ -68,9 +68,10 @@ export const friendService = {
 
     if (error) throw error;
 
-    // Return the friend user object (not the current user)
+    // Return the friend user object with friendship_id (not the current user)
     return data.map(friendship => {
-      return friendship.user_id === userId ? friendship.friend : friendship.user;
+      const friendData = friendship.user_id === userId ? friendship.friend : friendship.user;
+      return { ...friendData, friendship_id: friendship.id };
     });
   },
 
