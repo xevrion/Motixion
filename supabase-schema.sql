@@ -295,13 +295,34 @@ CREATE POLICY "Users can update own streaks"
 -- Function to auto-create user profile on signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_avatar_url TEXT;
+  v_username TEXT;
 BEGIN
+  -- Extract avatar URL from Google OAuth (check multiple possible locations)
+  v_avatar_url := COALESCE(
+    NEW.raw_user_meta_data->>'avatar_url',
+    NEW.raw_user_meta_data->>'picture',
+    NEW.user_metadata->>'avatar_url',
+    NEW.user_metadata->>'picture'
+  );
+
+  -- Extract username (Google provides 'full_name' or 'name', fallback to email prefix)
+  v_username := COALESCE(
+    NEW.raw_user_meta_data->>'username',
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_user_meta_data->>'name',
+    NEW.user_metadata->>'full_name',
+    NEW.user_metadata->>'name',
+    SPLIT_PART(NEW.email, '@', 1)
+  );
+
   INSERT INTO public.users (id, username, email, avatar_url)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'username', SPLIT_PART(NEW.email, '@', 1)),
+    v_username,
     NEW.email,
-    NEW.raw_user_meta_data->>'avatar_url'
+    v_avatar_url
   );
 
   INSERT INTO public.streaks (user_id)

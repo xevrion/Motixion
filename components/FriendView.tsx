@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAppStore } from "../services/store";
 import { friendService } from "../services/friends";
+import { Avatar } from "./Avatar";
 import {
   BarChart,
   Bar,
@@ -287,10 +288,14 @@ export const FriendView: React.FC = () => {
           {/* Left Column: Profile */}
           <div className="space-y-4 sm:space-y-6">
             <div className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl flex flex-col items-center text-center">
-              <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full border-4 border-emerald-500 p-1 mb-4 sm:mb-6 relative">
-                <div className="w-full h-full rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-3xl sm:text-4xl font-bold text-emerald-500">
-                  {selectedFriend.username.charAt(0).toUpperCase()}
-                </div>
+              <div className="mb-4 sm:mb-6 relative">
+                <Avatar
+                  avatarUrl={selectedFriend.avatar_url}
+                  username={selectedFriend.username}
+                  size='lg'
+                  showBorder={true}
+                  borderColor="border-emerald-500"
+                />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-1">
                 {selectedFriend.username}
@@ -573,19 +578,34 @@ export const FriendView: React.FC = () => {
               </div>
 
               {/* Avatar */}
-              <div
-                className={`w-12 sm:w-16 h-12 sm:h-16 rounded-full flex items-center justify-center font-bold text-xl sm:text-2xl flex-shrink-0 ${
-                  index === 0
-                    ? "bg-yellow-500/20 text-yellow-600 border-2 border-yellow-500"
+              <Avatar
+                avatarUrl={entry.avatar_url ?? entry.avatarUrl}
+                username={entry.username}
+                size="lg"
+                showBorder={index < 3 || entry.isMe}
+                borderColor={
+                  entry.isMe
+                    ? "border-emerald-500"
+                    : index === 0
+                    ? "border-yellow-500"
                     : index === 1
-                    ? "bg-zinc-300/20 text-zinc-500 border-2 border-zinc-300"
+                    ? "border-zinc-300"
                     : index === 2
-                    ? "bg-orange-500/20 text-orange-500 border-2 border-orange-500"
+                    ? "border-orange-500"
+                    : "border-emerald-500"
+                }
+                className={
+                  entry.isMe
+                    ? "bg-emerald-100 dark:bg-emerald-900 text-emerald-600"
+                    : index === 0
+                    ? "bg-yellow-500/20 text-yellow-600"
+                    : index === 1
+                    ? "bg-zinc-300/20 text-zinc-500"
+                    : index === 2
+                    ? "bg-orange-500/20 text-orange-500"
                     : "bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-                }`}
-              >
-                {entry.username.charAt(0).toUpperCase()}
-              </div>
+                }
+              />
 
               {/* Info */}
               <div className="flex-1 min-w-0">

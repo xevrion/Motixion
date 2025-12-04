@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppStore } from '../services/store';
 import { Award, Calendar, History, CalendarDays, LogOut } from 'lucide-react';
 import { NotificationSettings } from './NotificationSettings';
+import { Avatar } from './Avatar';
 
 export const Profile: React.FC = () => {
   const { user, purchases, loading, logs } = useAppStore();
@@ -35,11 +36,14 @@ export const Profile: React.FC = () => {
         <div className="space-y-4 sm:space-y-6 md:space-y-8">
           {/* USER CARD */}
           <div className="bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl flex flex-col items-center">
-            <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full p-1 border-4 border-emerald-500 mb-4 sm:mb-6 relative">
-              <div className="w-full h-full rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-3xl sm:text-5xl font-bold text-emerald-500">
-                {user.username.charAt(0).toUpperCase()}
-              </div>
-
+            <div className="mb-4 sm:mb-6 relative">
+              <Avatar
+                avatarUrl={user.avatarUrl}
+                username={user.username}
+                size
+                showBorder={true}
+                borderColor="border-emerald-500"
+              />
               <div className="absolute bottom-0 right-0 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 shadow-lg flex items-center gap-1">
                 <Award size={12} className="text-yellow-500" />
                 Lvl {Math.floor(user.balance / 100) + 1}

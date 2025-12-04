@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDailyLeaderboard, getTotalPointsLeaderboard, getLongestStreakLeaderboard, LeaderboardUser } from '../services/leaderboard';
 import { Loader2, Trophy, Star, TrendingUp } from 'lucide-react';
+import { Avatar } from './Avatar';
 
 type LeaderboardTab = 'daily' | 'total' | 'streak';
 
@@ -80,6 +81,17 @@ const Leaderboard = () => {
           >
             <div className="flex items-center gap-4">
               <div className="w-8 flex justify-center">{getTrophyIcon(index)}</div>
+              <Avatar
+                avatarUrl={user.avatar_url}
+                username={user.username}
+                size="md"
+                // className="flex-shrink-0"
+                className={`flex-shrink-0 ${
+                  index < 3
+                  ?'bg-zinc-100 dark:bg-zinc-900'
+                    : 'bg-zinc-200 dark:bg-zinc-800 border-yellow-500'
+                }`}
+              />
               <span className="font-medium text-zinc-900 dark:text-white text-sm sm:text-base">
                 {user.username}
               </span>

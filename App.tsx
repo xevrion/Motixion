@@ -54,6 +54,18 @@ const App: React.FC = () => {
   const pathname = window.location.pathname;
 
   useEffect(() => {
+    // Handle OAuth callback
+    if (pathname === '/auth/callback') {
+      authService.getSession().then((session) => {
+        if (session) {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/login';
+        }
+      });
+      return;
+    }
+
     // Check for existing session
     authService.getSession().then((session) => {
       setSession(session);
@@ -90,6 +102,18 @@ const App: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Handle OAuth callback
+  if (pathname === '/auth/callback') {
+    return (
+      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 size={48} className="text-emerald-500 animate-spin mx-auto mb-4" />
+          <p className="text-zinc-400">Completing sign in...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show landing page at root
   if (pathname === '/' || pathname === '') {

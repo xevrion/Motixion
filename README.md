@@ -266,6 +266,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [ ] Integrate wakatime api for tracking coding hours
 - [ ] Integrate calendar api for tracking tasks
 - [x] Add total number of users using the app (total visited) on the landing page with a animated counter
+- [x] Add google login
 
 
 ## License
