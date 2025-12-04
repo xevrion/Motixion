@@ -19,6 +19,7 @@ interface AppState {
   updateCustomReward: (rewardId: string, updates: Partial<CustomRewardInput>) => Promise<void>;
   deleteCustomReward: (rewardId: string) => Promise<void>;
   refreshData: () => Promise<void>;
+  isOwner: () => boolean;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -70,7 +71,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         totalPointsEarned: userData.total_points_earned || 0,
         currentStreak: userData.current_streak || 0,
         bestStreak: userData.best_streak || 0,
-        joinedAt: userData.joined_at
+        joinedAt: userData.joined_at,
+        role: userData.role || 'user'
       });
 
       // Fetch user's logs
@@ -220,6 +222,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await fetchUserData();
   };
 
+  const isOwner = () => {
+    return user?.role === 'owner';
+  };
+
   return (
     <AppContext.Provider value={{ 
       user, 
@@ -233,7 +239,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addCustomReward, 
       updateCustomReward, 
       deleteCustomReward, 
-      refreshData 
+      refreshData,
+      isOwner
     }}>
       {children}
     </AppContext.Provider>

@@ -13,7 +13,8 @@ CREATE TABLE public.users (
   balance INTEGER DEFAULT 0,
   total_points_earned INTEGER DEFAULT 0,
   current_streak INTEGER DEFAULT 0,
-  best_streak INTEGER DEFAULT 0
+  best_streak INTEGER DEFAULT 0,
+  role TEXT DEFAULT 'user'
 );
 
 -- Friendships table
@@ -115,6 +116,24 @@ CREATE TABLE public.push_subscriptions (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Roles table
+CREATE TABLE public.roles (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  emoji TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User roles join table
+CREATE TABLE public.user_roles (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  role_id UUID REFERENCES public.roles(id) ON DELETE CASCADE NOT NULL,
+  assigned_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, role_id)
+);
+
 -- Indexes for performance
 CREATE INDEX idx_daily_logs_user_date ON public.daily_logs(user_id, date DESC);
 CREATE INDEX idx_friendships_user ON public.friendships(user_id);
@@ -125,6 +144,9 @@ CREATE INDEX idx_custom_rewards_user ON public.custom_rewards(user_id);
 CREATE INDEX idx_notification_preferences_user ON public.notification_preferences(user_id);
 CREATE INDEX idx_push_subscriptions_user ON public.push_subscriptions(user_id);
 CREATE INDEX idx_push_subscriptions_endpoint ON public.push_subscriptions(endpoint);
+CREATE INDEX idx_user_roles_user ON public.user_roles(user_id);
+CREATE INDEX idx_user_roles_role ON public.user_roles(role_id);
+CREATE INDEX idx_user_roles_assigned_at ON public.user_roles(assigned_at);
 
 -- Row Level Security (RLS) Policies
 
@@ -138,6 +160,8 @@ ALTER TABLE public.custom_rewards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notification_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.streaks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
 CREATE POLICY "Users can view all profiles"
@@ -292,6 +316,79 @@ CREATE POLICY "Users can insert own streaks"
 CREATE POLICY "Users can update own streaks"
   ON public.streaks FOR UPDATE
   USING (auth.uid() = user_id);
+
+-- Roles policies
+CREATE POLICY "Everyone can view roles"
+  ON public.roles FOR SELECT
+  USING (true);
+
+CREATE POLICY "Owner can create roles"
+  ON public.roles FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
+
+CREATE POLICY "Owner can update roles"
+  ON public.roles FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
+
+CREATE POLICY "Owner can delete roles"
+  ON public.roles FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
+
+-- User roles policies
+CREATE POLICY "Users can view own roles"
+  ON public.user_roles FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Owner can view all user roles"
+  ON public.user_roles FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
+
+CREATE POLICY "Owner can assign roles"
+  ON public.user_roles FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
+
+CREATE POLICY "Owner can update role assignments"
+  ON public.user_roles FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
+
+CREATE POLICY "Owner can remove role assignments"
+  ON public.user_roles FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.users
+      WHERE id = auth.uid() AND role = 'owner'
+    )
+  );
 
 -- Function to auto-create user profile on signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()

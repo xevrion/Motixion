@@ -7,6 +7,22 @@ export interface User {
   currentStreak: number;
   bestStreak: number;
   joinedAt: string;
+  role: string;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface UserRole {
+  id: string;
+  userId: string;
+  roleId: string;
+  assignedAt: string;
 }
 
 export interface DailyLog {

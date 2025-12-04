@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDailyLeaderboard, getTotalPointsLeaderboard, getLongestStreakLeaderboard, LeaderboardUser } from '../services/leaderboard';
+import { userRoleService } from '../services/userRoles';
+import { Role } from '../types';
 import { Loader2, Trophy, Star, TrendingUp } from 'lucide-react';
 import { Avatar } from './Avatar';
 import { useAppStore } from '../services/store';
@@ -11,6 +13,7 @@ const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('daily');
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userTopRoles, setUserTopRoles] = useState<Map<string, Role | null>>(new Map());
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -20,6 +23,22 @@ const Leaderboard = () => {
       else if (activeTab === 'total') data = await getTotalPointsLeaderboard();
       else if (activeTab === 'streak') data = await getLongestStreakLeaderboard();
       setLeaderboardData(data);
+      
+      // Load top roles for all leaderboard users
+      const rolesMap = new Map<string, Role | null>();
+      await Promise.all(
+        data.map(async (leaderboardUser) => {
+          try {
+            const topRole = await userRoleService.getUserTopRole(leaderboardUser.id);
+            rolesMap.set(leaderboardUser.id, topRole);
+          } catch (error) {
+            console.error(`Error loading role for user ${leaderboardUser.id}:`, error);
+            rolesMap.set(leaderboardUser.id, null);
+          }
+        })
+      );
+      setUserTopRoles(rolesMap);
+      
       setLoading(false);
     };
 
@@ -99,12 +118,21 @@ const Leaderboard = () => {
                       : 'bg-zinc-200 dark:bg-zinc-800'
                   }`}
                 />
-                <span className={`font-medium text-sm sm:text-base ${
+                <span className={`font-medium text-sm sm:text-base flex items-center gap-1.5 ${
                   isMe
                     ? 'text-emerald-700 dark:text-emerald-300'
                     : 'text-zinc-900 dark:text-white'
                 }`}>
                   {leaderboardUser.username}{isMe && ' (You)'}
+                  {userTopRoles.get(leaderboardUser.id) && (
+                    <span
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-sm"
+                      title={userTopRoles.get(leaderboardUser.id)?.name}
+                    >
+                      {userTopRoles.get(leaderboardUser.id)?.emoji}
+                      <span className="font-semibold">{userTopRoles.get(leaderboardUser.id)?.name}</span>
+                    </span>
+                  )}
                 </span>
               </div>
 

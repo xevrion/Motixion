@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAppStore } from "../services/store";
 import { friendService } from "../services/friends";
+import { userRoleService } from "../services/userRoles";
+import { Role } from "../types";
 import { Avatar } from "./Avatar";
 import {
   BarChart,
@@ -41,6 +43,8 @@ export const FriendView: React.FC = () => {
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [leaderboardView, setLeaderboardView] = useState(true);
   const [pendingRequest, setPendingRequest] = useState<any | null>(null);
+  const [friendTopRoles, setFriendTopRoles] = useState<Map<string, Role | null>>(new Map());
+  const [selectedFriendTopRole, setSelectedFriendTopRole] = useState<Role | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -52,14 +56,42 @@ export const FriendView: React.FC = () => {
   useEffect(() => {
     if (selectedFriend && !leaderboardView) {
       loadFriendLogs();
+      loadSelectedFriendRole();
     }
   }, [selectedFriend, leaderboardView]);
+
+  const loadSelectedFriendRole = async () => {
+    if (!selectedFriend) return;
+    try {
+      const topRole = await userRoleService.getUserTopRole(selectedFriend.id);
+      setSelectedFriendTopRole(topRole);
+    } catch (error) {
+      console.error("Error loading selected friend role:", error);
+      setSelectedFriendTopRole(null);
+    }
+  };
 
   const loadFriends = async () => {
     if (!user) return;
     try {
       const data = await friendService.getFriendsWithTodayData(user.id);
       setFriends(data);
+      
+      // Load top roles for all friends
+      const rolesMap = new Map<string, Role | null>();
+      await Promise.all(
+        data.map(async (friend: any) => {
+          try {
+            const topRole = await userRoleService.getUserTopRole(friend.id);
+            rolesMap.set(friend.id, topRole);
+          } catch (error) {
+            console.error(`Error loading role for friend ${friend.id}:`, error);
+            rolesMap.set(friend.id, null);
+          }
+        })
+      );
+      setFriendTopRoles(rolesMap);
+      
       setLoadingFriends(false);
     } catch (error) {
       console.error("Error loading friends:", error);
@@ -295,8 +327,17 @@ export const FriendView: React.FC = () => {
                   borderColor="border-emerald-500"
                 />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-1 flex-col  items-center justify-center gap-2">
                 {selectedFriend.username}
+                {selectedFriendTopRole && (
+                  <span
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-sm"
+                  title={selectedFriendTopRole.name}
+                >
+                  {selectedFriendTopRole.emoji}
+                  <span className="font-semibold">{selectedFriendTopRole.name}</span>
+                </span>
+                )}
               </h2>
               <p className="text-zinc-500 text-xs sm:text-sm mb-6">
                 {pendingRequest 
@@ -718,8 +759,12 @@ export const FriendView: React.FC = () => {
                       className="flex-shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <span className="text-zinc-900 dark:text-white text-sm sm:text-base font-medium block truncate">
+                      <span className="text-zinc-900 dark:text-white text-sm sm:text-base font-medium truncate flex items-center gap-1.5">
                         {requester.username}
+                        {(() => {
+                          const topRole = friendTopRoles.get(requester.id);
+                          return topRole && <span className="text-sm" title={topRole.name}>{topRole.emoji}</span>;
+                        })()}
                       </span>
                       <div className="flex items-center gap-3 mt-0.5">
                         <span className="text-xs text-zinc-500 flex items-center gap-1">
@@ -818,8 +863,13 @@ export const FriendView: React.FC = () => {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-zinc-900 dark:text-white font-bold text-base sm:text-lg truncate">
+                <h3 className="text-zinc-900 dark:text-white font-bold text-base sm:text-lg truncate flex items-center gap-2">
                   {entry.username}
+                  {!entry.isMe && friendTopRoles.get(entry.id) && (
+                    <span className="text-base" title={friendTopRoles.get(entry.id)?.name}>
+                      {friendTopRoles.get(entry.id)?.emoji}
+                    </span>
+                  )}
                 </h3>
                 <div className="flex items-center gap-3 sm:gap-4 mt-1 flex-wrap">
                   <div className="flex items-center gap-1 text-xs sm:text-sm">

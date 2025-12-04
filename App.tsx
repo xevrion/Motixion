@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppProvider } from './services/store';
+import { AppProvider, useAppStore } from './services/store';
 import { ThemeProvider } from './services/theme';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
@@ -9,6 +9,7 @@ import { FriendView } from './components/FriendView';
 import { Profile } from './components/Profile';
 import { Auth } from './components/Auth';
 import { LandingPage } from './components/LandingPage';
+import { RoleManager } from './components/RoleManager';
 import { ViewState } from './types';
 import { authService } from './services/auth';
 import { notificationService } from './services/notifications';
@@ -19,6 +20,51 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const AppContent: React.FC = () => {
   const [currentView, setView] = useState<ViewState>(ViewState.DASHBOARD);
+  const { user, isOwner, loading } = useAppStore();
+  const pathname = window.location.pathname;
+
+  // Handle admin route
+  useEffect(() => {
+    if (pathname === '/admin/roles') {
+      if (!loading && user) {
+        if (!isOwner()) {
+          window.location.href = '/dashboard';
+        }
+      }
+    }
+  }, [pathname, user, loading, isOwner]);
+
+  // If on admin route, show RoleManager
+  if (pathname === '/admin/roles') {
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 size={48} className="text-emerald-500 animate-spin mx-auto mb-4" />
+            <p className="text-zinc-400">Loading...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (!user || !isOwner()) {
+      return (
+        <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-zinc-400">Access denied. Owner only.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Layout currentView={currentView} setView={setView}>
+        <div className="animate-in fade-in duration-500">
+          <RoleManager />
+        </div>
+      </Layout>
+    );
+  }
 
   const renderView = () => {
     switch (currentView) {

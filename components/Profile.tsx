@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../services/store';
+import { userRoleService } from '../services/userRoles';
+import { Role } from '../types';
 import { Award, Calendar, History, CalendarDays, LogOut } from 'lucide-react';
 import { NotificationSettings } from './NotificationSettings';
 import { Avatar } from './Avatar';
 
 export const Profile: React.FC = () => {
   const { user, purchases, loading, logs } = useAppStore();
+  const [userRoles, setUserRoles] = useState<Role[]>([]);
+  const [loadingRoles, setLoadingRoles] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadUserRoles();
+    }
+  }, [user]);
+
+  const loadUserRoles = async () => {
+    if (!user) return;
+    try {
+      setLoadingRoles(true);
+      const roles = await userRoleService.getUserRoles(user.id);
+      setUserRoles(roles);
+    } catch (error) {
+      console.error('Error loading user roles:', error);
+    } finally {
+      setLoadingRoles(false);
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -53,6 +76,23 @@ export const Profile: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-2">
               {user.username}
             </h2>
+
+            {/* User Roles */}
+            {!loadingRoles && userRoles.length > 0 && (
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                {userRoles.map((role) => (
+                  <div
+                    key={role.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full border border-zinc-300 dark:border-zinc-700"
+                  >
+                    <span className="text-sm">{role.emoji}</span>
+                    <span className="text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      {role.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="flex flex-col gap-2 w-full mt-6">
               <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-950 transition-colors text-zinc-600 dark:text-zinc-400">
