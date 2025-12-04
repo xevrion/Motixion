@@ -634,6 +634,8 @@ export const FriendView: React.FC = () => {
     {
       id: user.id,
       username: user.username + " (You)",
+      avatarUrl: user.avatarUrl,
+      avatar_url: user.avatarUrl,
       balance: user.balance,
       current_streak: user.currentStreak,
       todayPoints: myTodayPoints,
