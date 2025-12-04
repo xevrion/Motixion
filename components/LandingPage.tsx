@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { 
   ArrowRight, 
@@ -14,8 +14,12 @@ import {
   Star,
   Github
 } from 'lucide-react';
+import { getTotalUserCount } from '../services/userCount';
+import { AnimatedCounter } from './AnimatedCounter';
 
 export const LandingPage: React.FC = () => {
+  const [totalUsers, setTotalUsers] = useState<number>(0);
+
   const handleEnter = () => {
     window.location.href = '/login';
   };
@@ -30,6 +34,15 @@ export const LandingPage: React.FC = () => {
   const featuresInView = useInView(featuresRef, { once: true, amount: 0.2 });
   const statsInView = useInView(statsRef, { once: true, amount: 0.3 });
   const ctaInView = useInView(ctaRef, { once: true, amount: 0.3 });
+
+  // Fetch total user count on component mount
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      const count = await getTotalUserCount();
+      setTotalUsers(count);
+    };
+    fetchUserCount();
+  }, []);
 
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1, 0]);
@@ -261,7 +274,13 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {[
-              { icon: Users, value: "100%", label: "Free & Open Source" },
+              { 
+                icon: Users, 
+                value: (
+                  <AnimatedCounter value={totalUsers} trigger={statsInView} />
+                ), 
+                label: "Total Users" 
+              },
               { icon: Trophy, value: "∞", label: "Unlimited Rewards" },
               { icon: TrendingUp, value: "24/7", label: "Always Available" },
               { icon: Star, value: "100%", label: "Privacy First" },
