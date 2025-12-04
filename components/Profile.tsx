@@ -102,6 +102,16 @@ export const Profile: React.FC = () => {
                 <span className="text-zinc-600 dark:text-zinc-400 text-sm">Total Balance</span>
                 <span className="text-emerald-600 dark:text-emerald-400 font-bold">{user.balance} pts</span>
               </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-600 dark:text-zinc-400 text-sm">Total Points Earned</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">{user.totalPointsEarned} pts</span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-600 dark:text-zinc-400 text-sm">Total Points Spent</span>
+                <span className="text-rose-600 dark:text-rose-400 font-bold">{user.totalPointsEarned - user.balance} pts</span>
+              </div>
             </div>
           </div>
 
