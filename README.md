@@ -260,7 +260,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Dark/light theme toggle
 - [x] Add total number of users using the app (total visited) on the landing page with a animated counter
 - [x] Add google login
-- [ ] Add badges for achievements
+- [x] Add badges for achievements
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
