@@ -3,6 +3,7 @@ export interface User {
   username: string;
   avatarUrl: string;
   balance: number;
+  totalPointsEarned: number;
   currentStreak: number;
   bestStreak: number;
   joinedAt: string;

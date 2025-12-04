@@ -67,6 +67,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         username: userData.username,
         avatarUrl: userData.avatar_url || '',
         balance: userData.balance || 0,
+        totalPointsEarned: userData.total_points_earned || 0,
         currentStreak: userData.current_streak || 0,
         bestStreak: userData.best_streak || 0,
         joinedAt: userData.joined_at

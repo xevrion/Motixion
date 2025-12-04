@@ -46,7 +46,7 @@ export const Profile: React.FC = () => {
               />
               <div className="absolute bottom-0 right-0 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 shadow-lg flex items-center gap-1">
                 <Award size={12} className="text-yellow-500" />
-                Lvl {Math.floor(user.balance / 100) + 1}
+                Lvl {Math.floor(user.totalPointsEarned / 100) + 1}
               </div>
             </div>
 

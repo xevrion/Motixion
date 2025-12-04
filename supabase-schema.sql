@@ -11,6 +11,7 @@ CREATE TABLE public.users (
   avatar_url TEXT,
   joined_at TIMESTAMPTZ DEFAULT NOW(),
   balance INTEGER DEFAULT 0,
+  total_points_earned INTEGER DEFAULT 0,
   current_streak INTEGER DEFAULT 0,
   best_streak INTEGER DEFAULT 0
 );
@@ -503,5 +504,19 @@ BEGIN
   WHERE dl.date = CURRENT_DATE
   ORDER BY dl.total_points DESC
   LIMIT 15;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to backfill total_points_earned for existing users
+-- Calculates: current balance + sum of all purchases
+CREATE OR REPLACE FUNCTION public.backfill_lifetime_points()
+RETURNS void AS $$
+BEGIN
+  UPDATE public.users u
+  SET total_points_earned = COALESCE(u.balance, 0) + COALESCE(
+    (SELECT SUM(points_spent) FROM public.purchases WHERE user_id = u.id),
+    0
+  )
+  WHERE u.total_points_earned = 0 OR u.total_points_earned IS NULL;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

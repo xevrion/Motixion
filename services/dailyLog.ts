@@ -118,19 +118,31 @@ export const dailyLogService = {
 
   // Update user's balance
   async updateUserPoints(userId: string, pointsToAdd: number) {
-    // Get current balance
+    // Get current balance and total_points_earned
     const { data: user, error: fetchError } = await supabase
       .from('users')
-      .select('balance')
+      .select('balance, total_points_earned')
       .eq('id', userId)
       .single();
 
     if (fetchError) throw fetchError;
 
-    // Update balance
+    // Calculate new balance
+    const newBalance = (user.balance || 0) + pointsToAdd;
+    
+    // Only increment total_points_earned when points are positive (earned)
+    // Negative points (from editing logs) don't count toward lifetime total
+    const newTotalPointsEarned = pointsToAdd > 0 
+      ? (user.total_points_earned || 0) + pointsToAdd
+      : (user.total_points_earned || 0);
+
+    // Update balance and total_points_earned
     const { error: updateError } = await supabase
       .from('users')
-      .update({ balance: (user.balance || 0) + pointsToAdd })
+      .update({ 
+        balance: newBalance,
+        total_points_earned: newTotalPointsEarned
+      })
       .eq('id', userId);
 
     if (updateError) throw updateError;
