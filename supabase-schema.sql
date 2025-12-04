@@ -430,3 +430,26 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function to get daily leaderboard (bypasses RLS for global view)
+CREATE OR REPLACE FUNCTION public.get_daily_leaderboard()
+RETURNS TABLE (
+  id UUID,
+  username TEXT,
+  score INTEGER,
+  avatar_url TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    u.id,
+    u.username,
+    dl.total_points AS score,
+    u.avatar_url
+  FROM public.daily_logs dl
+  INNER JOIN public.users u ON u.id = dl.user_id
+  WHERE dl.date = CURRENT_DATE
+  ORDER BY dl.total_points DESC
+  LIMIT 15;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { getToday } from './dateUtils';
 
 export interface LeaderboardUser {
   id: string;
@@ -9,31 +8,21 @@ export interface LeaderboardUser {
 }
 
 export const getDailyLeaderboard = async (): Promise<LeaderboardUser[]> => {
-  const today = getToday();
-  const { data, error } = await supabase
-    .from('daily_logs')
-    .select('total_points, users (id, username, avatar_url)')
-    .eq('date', today)
-    .order('total_points', { ascending: false })
-    .limit(15);
+  const { data, error } = await supabase.rpc('get_daily_leaderboard');
 
   if (error) {
     console.error('Error fetching daily leaderboard:', error);
     return [];
   }
 
-  return data.map((row: any) => ({
-    id: row.users.id,
-    username: row.users.username,
-    score: row.total_points,
-    avatar_url: row.users.avatar_url,
-  }));
+  return data || [];
 };
 
 export const getTotalPointsLeaderboard = async (): Promise<LeaderboardUser[]> => {
   const { data, error } = await supabase
     .from('users')
     .select('id, username, balance, avatar_url')
+    .gt('balance', 0)
     .order('balance', { ascending: false })
     .limit(15);
 
@@ -54,6 +43,7 @@ export const getLongestStreakLeaderboard = async (): Promise<LeaderboardUser[]> 
   const { data, error } = await supabase
     .from('users')
     .select('id, username, best_streak, avatar_url')
+    .gt('best_streak', 0)
     .order('best_streak', { ascending: false })
     .limit(15);
 
