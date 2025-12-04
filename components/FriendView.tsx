@@ -291,7 +291,7 @@ export const FriendView: React.FC = () => {
                   avatarUrl={selectedFriend.avatar_url}
                   username={selectedFriend.username}
                   size='lg'
-                  showBorder={true}
+                  // showBorder={true}
                   borderColor="border-emerald-500"
                 />
               </div>
@@ -778,7 +778,7 @@ export const FriendView: React.FC = () => {
                 avatarUrl={entry.avatar_url ?? entry.avatarUrl}
                 username={entry.username}
                 size="lg"
-                showBorder={index < 3 || entry.isMe}
+                // showBorder={index < 3 || entry.isMe}
                 borderColor={
                   entry.isMe
                     ? "border-emerald-500"
