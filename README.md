@@ -256,17 +256,17 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 
 - [x] Push notifications for daily reminders
 - [x] Global leaderboard across all users
+- [x] Personalized Shop (Custom rewards)
+- [x] Dark/light theme toggle
+- [x] Add total number of users using the app (total visited) on the landing page with a animated counter
+- [x] Add google login
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
 - [ ] AI-powered insights and coaching
-- [x] Personalized Shop (Custom rewards)
-- [x] Dark/light theme toggle
 - [ ] Export data functionality
 - [ ] Integrate wakatime api for tracking coding hours
 - [ ] Integrate calendar api for tracking tasks
-- [x] Add total number of users using the app (total visited) on the landing page with a animated counter
-- [x] Add google login
 
 
 ## License
