@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { getDailyLeaderboard, getTotalPointsLeaderboard, getLongestStreakLeaderboard, LeaderboardUser } from '../services/leaderboard';
 import { Loader2, Trophy, Star, TrendingUp } from 'lucide-react';
 import { Avatar } from './Avatar';
+import { useAppStore } from '../services/store';
 
 type LeaderboardTab = 'daily' | 'total' | 'streak';
 
 const Leaderboard = () => {
+  const { user } = useAppStore();
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('daily');
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,50 +72,64 @@ const Leaderboard = () => {
 
     return (
       <div className="space-y-2">
-        {leaderboardData.map((user, index) => (
-          <div
-            key={user.id}
-            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-              index < 3
-                ? 'bg-zinc-200 dark:bg-zinc-800 border-l-4 border-yellow-500'
-                : 'bg-zinc-100 dark:bg-zinc-900'
-            }`}
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-8 flex justify-center">{getTrophyIcon(index)}</div>
-              <Avatar
-                avatarUrl={user.avatar_url}
-                username={user.username}
-                size="md"
-                // className="flex-shrink-0"
-                className={`flex-shrink-0 ${
-                  index < 3
-                  ?'bg-zinc-100 dark:bg-zinc-900'
-                    : 'bg-zinc-200 dark:bg-zinc-800 border-yellow-500'
-                }`}
-              />
-              <span className="font-medium text-zinc-900 dark:text-white text-sm sm:text-base">
-                {user.username}
-              </span>
-            </div>
+        {leaderboardData.map((leaderboardUser, index) => {
+          const isMe = user?.id === leaderboardUser.id;
+          return (
+            <div
+              key={leaderboardUser.id}
+              className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                isMe
+                  ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border-l-4 border-emerald-500'
+                  : index < 3
+                  ? 'bg-zinc-200 dark:bg-zinc-800 border-l-4 border-yellow-500'
+                  : 'bg-zinc-100 dark:bg-zinc-900'
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-8 flex justify-center">{getTrophyIcon(index)}</div>
+                <Avatar
+                  avatarUrl={leaderboardUser.avatar_url}
+                  username={leaderboardUser.username}
+                  size="md"
+                  className={`flex-shrink-0 ${
+                    isMe
+                      ? 'bg-emerald-100 dark:bg-emerald-900'
+                      : index < 3
+                      ? 'bg-zinc-100 dark:bg-zinc-900'
+                      : 'bg-zinc-200 dark:bg-zinc-800'
+                  }`}
+                />
+                <span className={`font-medium text-sm sm:text-base ${
+                  isMe
+                    ? 'text-emerald-700 dark:text-emerald-300'
+                    : 'text-zinc-900 dark:text-white'
+                }`}>
+                  {leaderboardUser.username}{isMe && ' (You)'}
+                </span>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                {user.score}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`text-base sm:text-lg font-bold ${
+                  isMe
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-emerald-600 dark:text-emerald-400'
+                }`}>
+                  {leaderboardUser.score}
+                </span>
 
-              {activeTab === 'daily' && (
-                <TrendingUp size={16} className="text-emerald-500" />
-              )}
-              {activeTab === 'total' && (
-                <Star size={16} className="text-yellow-500" />
-              )}
-              {activeTab === 'streak' && (
-                <TrendingUp size={16} className="text-emerald-500" />
-              )}
+                {activeTab === 'daily' && (
+                  <TrendingUp size={16} className="text-emerald-500" />
+                )}
+                {activeTab === 'total' && (
+                  <Star size={16} className="text-yellow-500" />
+                )}
+                {activeTab === 'streak' && (
+                  <TrendingUp size={16} className="text-emerald-500" />
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
