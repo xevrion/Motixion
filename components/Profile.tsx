@@ -65,7 +65,8 @@ export const Profile: React.FC = () => {
               <Avatar
                 avatarUrl={user.avatarUrl}
                 username={user.username}
-                size
+                size="xl"
+                fixed96px={true}
                 showBorder={true}
                 borderColor="border-emerald-500"
               />

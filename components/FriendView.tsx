@@ -323,6 +323,7 @@ export const FriendView: React.FC = () => {
                   avatarUrl={selectedFriend.avatar_url}
                   username={selectedFriend.username}
                   size='lg'
+                  fixed96px={true}
                   // showBorder={true}
                   borderColor="border-emerald-500"
                 />

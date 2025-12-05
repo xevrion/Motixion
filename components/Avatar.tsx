@@ -7,6 +7,7 @@ interface AvatarProps {
   className?: string;
   showBorder?: boolean;
   borderColor?: string;
+  fixed96px?: boolean; // Force 96x96px size regardless of size prop
 }
 
 const sizeClasses = {
@@ -27,24 +28,25 @@ export const Avatar: React.FC<AvatarProps> = ({
   className = '',
   showBorder = false,
   borderColor = 'border-emerald-500',
+  fixed96px = false,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  const sizeClass = sizeClasses[size];
+  const sizeClass = fixed96px ? 'w-24 h-24' : sizeClasses[size];
   const initial = username.charAt(0).toUpperCase();
   const hasImage = avatarUrl && !imageError;
 
   return (
     <div
-      className={`${sizeClass} rounded-full flex items-center justify-center font-bold flex-shrink-0 relative ${
+      className={`${sizeClass} rounded-full flex items-center justify-center font-bold flex-shrink-0 relative overflow-hidden ${
         hasImage ? 'bg-transparent' : 'bg-zinc-200 dark:bg-zinc-800 text-emerald-500'
       } ${showBorder ? `border-4 ${borderColor}` : ''} ${className}`}
     >
       {hasImage ? (
         <>
           {imageLoading && (
-            <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center z-10">
               <span className="text-zinc-400">{initial}</span>
             </div>
           )}
@@ -52,7 +54,14 @@ export const Avatar: React.FC<AvatarProps> = ({
             key={avatarUrl}
             src={avatarUrl}
             alt={username}
-            className={`${sizeClass} rounded-full object-cover ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity`}
+            className="w-full h-full object-cover rounded-full"
+            style={{ 
+              opacity: imageLoading ? 0 : 1,
+              ...(fixed96px && {
+                maxWidth: '96px',
+                maxHeight: '96px',
+              })
+            }}
             onLoad={() => setImageLoading(false)}
             onError={() => {
               setImageError(true);
