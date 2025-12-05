@@ -43,7 +43,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
 
-      // Sync avatar from Google OAuth on every sign-in
+      // Sync avatar from Google OAuth on sign-in (only if user doesn't have a custom uploaded avatar)
       try {
         await supabase.rpc('sync_my_avatar');
       } catch (syncError) {
