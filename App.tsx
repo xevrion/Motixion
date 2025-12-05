@@ -10,6 +10,7 @@ import { Profile } from './components/Profile';
 import { Auth } from './components/Auth';
 import { LandingPage } from './components/LandingPage';
 import { RoleManager } from './components/RoleManager';
+import { Feedback } from './components/Feedback';
 import { ViewState } from './types';
 import { authService } from './services/auth';
 import { notificationService } from './services/notifications';
@@ -80,6 +81,8 @@ const AppContent: React.FC = () => {
         return <Profile />;
       case ViewState.LEADERBOARD:
         return <Leaderboard />;
+      case ViewState.FEEDBACK:
+        return <Feedback />;
       default:
         return <Dashboard />;
     }
