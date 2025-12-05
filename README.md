@@ -262,6 +262,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Add google login
 - [x] Add badges for achievements
 - [x] Implement profile editing (username, profile picture)
+- [x] Allow users to view their own notes from logging sessions
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
@@ -270,7 +271,6 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [ ] Integrate wakatime api for tracking coding hours
 - [ ] Integrate calendar api for tracking tasks
 - [ ] Add option for night owls/all nighters to set custom sleep/wake times
-- [ ] Allow users to view their own notes from logging sessions
 - [ ] Improve UI with glass/frosted glass effects
 - [ ] Add a feedback page for users unfamiliar with GitHub
 
