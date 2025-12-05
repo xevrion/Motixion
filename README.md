@@ -261,6 +261,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Add total number of users using the app (total visited) on the landing page with a animated counter
 - [x] Add google login
 - [x] Add badges for achievements
+- [ ] Implement profile editing (username, profile picture)
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
@@ -268,7 +269,10 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [ ] Export data functionality
 - [ ] Integrate wakatime api for tracking coding hours
 - [ ] Integrate calendar api for tracking tasks
-
+- [ ] Add option for night owls/all nighters to set custom sleep/wake times
+- [ ] Allow users to view their own notes from logging sessions
+- [ ] Improve UI with glass/frosted glass effects
+- [ ] Add a feedback page for users unfamiliar with GitHub
 
 ## License
 
