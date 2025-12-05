@@ -350,18 +350,9 @@ CREATE POLICY "Owner can delete roles"
   );
 
 -- User roles policies
-CREATE POLICY "Users can view own roles"
+CREATE POLICY "Everyone can view all user roles"
   ON public.user_roles FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Owner can view all user roles"
-  ON public.user_roles FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE id = auth.uid() AND role = 'owner'
-    )
-  );
+  USING (true);
 
 CREATE POLICY "Owner can assign roles"
   ON public.user_roles FOR INSERT
