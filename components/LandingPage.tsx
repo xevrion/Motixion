@@ -1,28 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { 
-  ArrowRight, 
-  Users, 
-  Trophy, 
-  LineChart, 
-  Sparkles, 
-  TrendingUp, 
+import React, { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import {
+  ArrowRight,
+  Users,
+  Trophy,
+  LineChart,
+  Sparkles,
+  TrendingUp,
   Target,
   Zap,
   BarChart3,
   CheckCircle2,
   Star,
-  Github
-} from 'lucide-react';
-import { getTotalUserCount } from '../services/userCount';
-import { AnimatedCounter } from './AnimatedCounter';
+  Github,
+} from "lucide-react";
+import { getTotalUserCount } from "../services/userCount";
+import { AnimatedCounter } from "./AnimatedCounter";
 
 export const LandingPage: React.FC = () => {
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const isClient = typeof window !== "undefined";
 
   const handleEnter = () => {
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   const { scrollYProgress } = useScroll();
@@ -45,15 +45,15 @@ export const LandingPage: React.FC = () => {
         const count = await getTotalUserCount();
         setTotalUsers(count);
       } catch (error) {
-        console.error('Failed to fetch user count:', error);
+        console.error("Failed to fetch user count:", error);
         // Keep default 0 on error
       }
     };
-    
+
     fetchUserCount();
   }, [isClient]);
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1, 0]);
 
   const containerVariants = {
@@ -88,6 +88,12 @@ export const LandingPage: React.FC = () => {
       },
     },
   };
+
+  console.log("SUPABASE URL:", import.meta.env.VITE_SUPABASE_URL);
+  console.log(
+    "SUPABASE KEY:",
+    import.meta.env.VITE_SUPABASE_ANON_KEY ? "loaded" : "missing"
+  );
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-emerald-500/30 overflow-x-hidden">
@@ -145,23 +151,37 @@ export const LandingPage: React.FC = () => {
       </motion.nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-16 sm:pt-20 md:pt-24 pb-16 sm:pb-24 md:pb-32 overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative pt-16 sm:pt-20 md:pt-24 pb-16 sm:pb-24 md:pb-32 overflow-hidden"
+      >
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={heroInView ? "visible" : "hidden"}
           className="max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-6 sm:space-y-8 md:space-y-10"
         >
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-zinc-900/80 border border-emerald-500/20 text-xs sm:text-sm font-medium text-emerald-400 backdrop-blur-sm max-w-full">
+          <motion.div
+            variants={itemVariants}
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-zinc-900/80 border border-emerald-500/20 text-xs sm:text-sm font-medium text-emerald-400 backdrop-blur-sm max-w-full"
+          >
             <motion.div
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               className="flex-shrink-0"
             >
-              <Sparkles size={12} className="sm:w-3.5 sm:h-3.5" fill="currentColor" />
+              <Sparkles
+                size={12}
+                className="sm:w-3.5 sm:h-3.5"
+                fill="currentColor"
+              />
             </motion.div>
-            <span className="whitespace-nowrap">Open Source • Free Forever</span>
-            <span className="hidden sm:inline whitespace-nowrap">• Built for High Performers</span>
+            <span className="whitespace-nowrap">
+              Open Source • Free Forever
+            </span>
+            <span className="hidden sm:inline whitespace-nowrap">
+              • Built for High Performers
+            </span>
           </motion.div>
 
           <motion.h1
@@ -179,7 +199,8 @@ export const LandingPage: React.FC = () => {
             variants={itemVariants}
             className="text-base sm:text-lg md:text-xl lg:text-2xl text-zinc-400 max-w-3xl mx-auto leading-relaxed px-2"
           >
-            The minimal accountability tracker for high-performers. Log habits, earn points, compete with friends, and redeem real rewards.
+            The minimal accountability tracker for high-performers. Log habits,
+            earn points, compete with friends, and redeem real rewards.
           </motion.p>
 
           <motion.div
@@ -187,7 +208,10 @@ export const LandingPage: React.FC = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 w-full sm:w-auto"
           >
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)" }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)",
+              }}
               whileTap={{ scale: 0.95 }}
               onClick={handleEnter}
               className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-base sm:text-lg shadow-2xl shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 sm:gap-3 group"
@@ -201,7 +225,7 @@ export const LandingPage: React.FC = () => {
               </motion.div>
             </motion.button>
             <motion.a
-              href="https://github.com/xevrion/motixion" 
+              href="https://github.com/xevrion/motixion"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
@@ -245,7 +269,11 @@ export const LandingPage: React.FC = () => {
                         key={i}
                         initial={{ opacity: 0.5 }}
                         animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.3,
+                        }}
                         className="h-6 sm:h-8 w-full bg-zinc-900 rounded-lg"
                       ></motion.div>
                     ))}
@@ -258,9 +286,15 @@ export const LandingPage: React.FC = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 + i * 0.1 }}
-                      className={`h-24 sm:h-28 md:h-32 bg-zinc-900/50 rounded-lg sm:rounded-xl border border-zinc-800 flex flex-col justify-between p-3 sm:p-4 ${i === 4 ? 'col-span-2 md:col-span-2' : ''}`}
+                      className={`h-24 sm:h-28 md:h-32 bg-zinc-900/50 rounded-lg sm:rounded-xl border border-zinc-800 flex flex-col justify-between p-3 sm:p-4 ${
+                        i === 4 ? "col-span-2 md:col-span-2" : ""
+                      }`}
                     >
-                      <div className={`w-6 h-6 sm:w-8 sm:h-8 ${i % 2 === 0 ? 'bg-emerald-500/20' : 'bg-orange-500/20'} rounded-lg mb-1 sm:mb-2`}></div>
+                      <div
+                        className={`w-6 h-6 sm:w-8 sm:h-8 ${
+                          i % 2 === 0 ? "bg-emerald-500/20" : "bg-orange-500/20"
+                        } rounded-lg mb-1 sm:mb-2`}
+                      ></div>
                       <div className="h-6 sm:h-8 bg-zinc-800 rounded"></div>
                     </motion.div>
                   ))}
@@ -283,12 +317,12 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {[
-              { 
-                icon: Users, 
+              {
+                icon: Users,
                 value: (
                   <AnimatedCounter value={totalUsers} trigger={statsInView} />
-                ), 
-                label: "Total Users" 
+                ),
+                label: "Total Users",
               },
               { icon: Trophy, value: "∞", label: "Unlimited Rewards" },
               { icon: TrendingUp, value: "24/7", label: "Always Available" },
@@ -315,7 +349,9 @@ export const LandingPage: React.FC = () => {
                 >
                   {stat.value}
                 </motion.div>
-                <div className="text-xs sm:text-sm text-zinc-400 leading-tight">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-zinc-400 leading-tight">
+                  {stat.label}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -337,7 +373,9 @@ export const LandingPage: React.FC = () => {
               transition={{ delay: 0.2, type: "spring" }}
               className="inline-block mb-3 sm:mb-4"
             >
-              <span className="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider">Features</span>
+              <span className="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider">
+                Features
+              </span>
             </motion.div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6 px-2">
               Everything You Need to
@@ -422,10 +460,16 @@ export const LandingPage: React.FC = () => {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   className={`w-12 h-12 sm:w-14 sm:h-14 ${feature.iconBg} rounded-lg sm:rounded-xl ${feature.iconBorder} flex items-center justify-center mb-4 sm:mb-6 ${feature.hoverBorder} transition-all`}
                 >
-                  <feature.icon className={`${feature.iconColor} w-6 h-6 sm:w-7 sm:h-7`} />
+                  <feature.icon
+                    className={`${feature.iconColor} w-6 h-6 sm:w-7 sm:h-7`}
+                  />
                 </motion.div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">{feature.title}</h3>
-                <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">{feature.desc}</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+                  {feature.desc}
+                </p>
               </motion.div>
             ))}
           </motion.div>
@@ -448,9 +492,13 @@ export const LandingPage: React.FC = () => {
           transition={{ duration: 1 }}
         >
           {/* Top gradient fade in */}
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, rgba(16, 185, 129, 0.00) 0%, rgba(16, 185, 129, 0.12) 25%, rgba(45, 212, 191,0.10) 60%, rgba(59, 130, 246, 0.10) 80%, rgba(16, 185, 129, 0.10) 100%)'
-          }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(16, 185, 129, 0.00) 0%, rgba(16, 185, 129, 0.12) 25%, rgba(45, 212, 191,0.10) 60%, rgba(59, 130, 246, 0.10) 80%, rgba(16, 185, 129, 0.10) 100%)",
+            }}
+          />
           {/* Top fade-to-transparent */}
           <div className="absolute top-0 left-0 right-0 h-24 sm:h-36 md:h-40 bg-gradient-to-b from-zinc-950 via-transparent to-transparent pointer-events-none" />
           {/* Bottom fade-to-transparent */}
@@ -479,11 +527,18 @@ export const LandingPage: React.FC = () => {
             variants={itemVariants}
             className="text-base sm:text-lg md:text-xl text-zinc-400 mb-8 sm:mb-10 max-w-2xl mx-auto px-2"
           >
-            Join high-performers who are already using Motixion to stay accountable and achieve their goals.
+            Join high-performers who are already using Motixion to stay
+            accountable and achieve their goals.
           </motion.p>
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto"
+          >
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(16, 185, 129, 0.4)" }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 20px 40px rgba(16, 185, 129, 0.4)",
+              }}
               whileTap={{ scale: 0.95 }}
               onClick={handleEnter}
               className="w-full sm:w-auto h-12 sm:h-14 px-8 sm:px-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-base sm:text-lg shadow-2xl shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 sm:gap-3 group"
@@ -563,7 +618,3 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
-
-
-
-
