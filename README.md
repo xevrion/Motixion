@@ -261,7 +261,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Add total number of users using the app (total visited) on the landing page with a animated counter
 - [x] Add google login
 - [x] Add badges for achievements
-- [ ] Implement profile editing (username, profile picture)
+- [x] Implement profile editing (username, profile picture)
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
