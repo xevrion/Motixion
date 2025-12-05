@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../services/store';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid, YAxis } from 'recharts';
-import { Flame, TrendingUp, CheckCircle, Clock, Calendar, Edit3 } from 'lucide-react';
+import { Flame, TrendingUp, CheckCircle, Clock, Calendar, Edit3, FileText } from 'lucide-react';
 import { getToday } from '../services/dateUtils';
 
 export const Dashboard: React.FC = () => {
   const { user, logs, loading } = useAppStore();
+  const [visibleNotesCount, setVisibleNotesCount] = useState(15);
 
   if (loading || !user) {
     return (
@@ -30,6 +31,21 @@ export const Dashboard: React.FC = () => {
   const tasksPercent = todayLog && todayLog.tasksAssigned > 0 
     ? Math.round((todayLog.tasksCompleted / todayLog.tasksAssigned) * 100) 
     : 0;
+
+  // Filter and sort logs with notes
+  const logsWithNotes = useMemo(() => {
+    return userLogs
+      .filter(log => log.notes && log.notes.trim().length > 0)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [userLogs]);
+
+  // Get visible notes based on pagination
+  const visibleNotes = logsWithNotes.slice(0, visibleNotesCount);
+  const hasMoreNotes = logsWithNotes.length > visibleNotesCount;
+
+  const handleLoadMore = () => {
+    setVisibleNotesCount(prev => prev + 15);
+  };
 
   const StatCard = ({ icon: Icon, label, value, unit, colorClass, subValue }: any) => (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
@@ -199,6 +215,82 @@ export const Dashboard: React.FC = () => {
             )}
         </div>
       </div>
+
+      {/* Notes Section */}
+      {logsWithNotes.length > 0 && (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 sm:p-6 md:p-8 rounded-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-zinc-100 dark:bg-zinc-950 rounded-lg border border-zinc-300 dark:border-zinc-800">
+              <FileText size={20} className="text-emerald-500" />
+            </div>
+            <div>
+              <h3 className="text-zinc-900 dark:text-white font-bold text-base sm:text-lg">Your Notes</h3>
+              <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">
+                {logsWithNotes.length} {logsWithNotes.length === 1 ? 'note' : 'notes'} total
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {visibleNotes.map((log) => {
+              const noteDate = new Date(log.date);
+              const formattedDate = noteDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              });
+
+              return (
+                <div
+                  key={log.id}
+                  className="p-4 sm:p-5 bg-zinc-50 dark:bg-zinc-950/50 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3">
+                    <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
+                      <Calendar size={14} />
+                      <span className="text-sm font-medium">{formattedDate}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <Clock size={14} className="text-blue-400" />
+                        <span className="text-zinc-600 dark:text-zinc-400">
+                          {log.studyHours}h
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle size={14} className="text-purple-400" />
+                        <span className="text-zinc-600 dark:text-zinc-400">
+                          {log.tasksCompleted}/{log.tasksAssigned}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <TrendingUp size={14} className="text-emerald-400" />
+                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                          {log.score} pts
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-zinc-900 dark:text-white text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                    {log.notes}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {hasMoreNotes && (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={handleLoadMore}
+                className="px-6 py-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg font-medium text-sm transition-colors border border-zinc-300 dark:border-zinc-700"
+              >
+                Load More ({logsWithNotes.length - visibleNotesCount} remaining)
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
