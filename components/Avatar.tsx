@@ -49,6 +49,7 @@ export const Avatar: React.FC<AvatarProps> = ({
             </div>
           )}
           <img
+            key={avatarUrl}
             src={avatarUrl}
             alt={username}
             className={`${sizeClass} rounded-full object-cover ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity`}

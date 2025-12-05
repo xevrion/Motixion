@@ -4,6 +4,7 @@ import { supabase } from './supabase';
 import { dailyLogService } from './dailyLog';
 import { authService } from './auth';
 import { customRewardService, CustomRewardInput } from './customRewards';
+import { profileService, ProfileUpdateInput } from './profile';
 import { getToday } from './dateUtils';
 
 interface AppState {
@@ -18,6 +19,7 @@ interface AppState {
   addCustomReward: (rewardData: CustomRewardInput) => Promise<void>;
   updateCustomReward: (rewardId: string, updates: Partial<CustomRewardInput>) => Promise<void>;
   deleteCustomReward: (rewardId: string) => Promise<void>;
+  updateProfile: (updates: ProfileUpdateInput) => Promise<void>;
   refreshData: () => Promise<void>;
   isOwner: () => boolean;
 }
@@ -218,6 +220,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const updateProfile = async (updates: ProfileUpdateInput): Promise<void> => {
+    if (!user) return;
+
+    try {
+      await profileService.updateProfile(user.id, updates);
+      await fetchUserData();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
   const refreshData = async () => {
     await fetchUserData();
   };
@@ -238,7 +252,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       buyReward, 
       addCustomReward, 
       updateCustomReward, 
-      deleteCustomReward, 
+      deleteCustomReward,
+      updateProfile,
       refreshData,
       isOwner
     }}>

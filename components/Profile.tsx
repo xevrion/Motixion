@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../services/store';
 import { userRoleService } from '../services/userRoles';
 import { Role } from '../types';
-import { Award, Calendar, History, CalendarDays, LogOut } from 'lucide-react';
+import { Award, Calendar, History, CalendarDays, LogOut, Edit2 } from 'lucide-react';
 import { NotificationSettings } from './NotificationSettings';
 import { Avatar } from './Avatar';
+import { ProfileEdit } from './ProfileEdit';
 
 export const Profile: React.FC = () => {
-  const { user, purchases, loading, logs } = useAppStore();
+  const { user, purchases, loading, logs, refreshData } = useAppStore();
   const [userRoles, setUserRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -95,6 +97,14 @@ export const Profile: React.FC = () => {
             )}
 
             <div className="flex flex-col gap-2 w-full mt-6">
+              <button
+                onClick={() => setIsEditOpen(true)}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-emerald-500/10 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+              >
+                <Edit2 size={18} />
+                <span className="text-sm font-medium">Edit Profile</span>
+              </button>
+
               <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-950 transition-colors text-zinc-600 dark:text-zinc-400">
                 <CalendarDays size={18} />
                 <span className="text-sm">
@@ -222,6 +232,18 @@ export const Profile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Edit Modal */}
+      {user && (
+        <ProfileEdit
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          user={user}
+          onSuccess={async () => {
+            await refreshData();
+          }}
+        />
+      )}
     </div>
   );
 };
