@@ -8,29 +8,13 @@ export const Dashboard: React.FC = () => {
   const { user, logs, loading } = useAppStore();
   const [visibleNotesCount, setVisibleNotesCount] = useState(15);
 
-  if (loading || !user) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-zinc-600 dark:text-zinc-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const userLogs = logs
-    .filter(l => l.userId === user.id)
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  const todayLog = userLogs.find(l => l.date === getToday());
-  const last7Days = userLogs.slice(-7);
-
-  const todayPoints = todayLog ? todayLog.score : 0;
-  const todayHours = todayLog ? todayLog.studyHours : 0;
-  const tasksPercent = todayLog && todayLog.tasksAssigned > 0 
-    ? Math.round((todayLog.tasksCompleted / todayLog.tasksAssigned) * 100) 
-    : 0;
+  // Filter and sort user logs - must be computed before early return
+  const userLogs = useMemo(() => {
+    if (!user) return [];
+    return logs
+      .filter(l => l.userId === user.id)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [logs, user]);
 
   // Filter and sort logs with notes
   const logsWithNotes = useMemo(() => {
@@ -46,6 +30,26 @@ export const Dashboard: React.FC = () => {
   const handleLoadMore = () => {
     setVisibleNotesCount(prev => prev + 15);
   };
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-zinc-600 dark:text-zinc-400">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const todayLog = userLogs.find(l => l.date === getToday());
+  const last7Days = userLogs.slice(-7);
+
+  const todayPoints = todayLog ? todayLog.score : 0;
+  const todayHours = todayLog ? todayLog.studyHours : 0;
+  const tasksPercent = todayLog && todayLog.tasksAssigned > 0 
+    ? Math.round((todayLog.tasksCompleted / todayLog.tasksAssigned) * 100) 
+    : 0;
 
   const StatCard = ({ icon: Icon, label, value, unit, colorClass, subValue }: any) => (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
