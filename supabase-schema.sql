@@ -608,3 +608,11 @@ BEGIN
   WHERE u.total_points_earned = 0 OR u.total_points_earned IS NULL;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get total user count (bypasses RLS for public display)
+CREATE OR REPLACE FUNCTION public.get_total_user_count()
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN (SELECT COUNT(*) FROM public.users);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
