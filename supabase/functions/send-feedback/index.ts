@@ -106,10 +106,63 @@ serve(async (req) => {
       );
     }
 
+    // Fetch user stats and roles
+    const { data: userData, error: userError } = await supabaseClient
+      .from('users')
+      .select('balance, best_streak, total_points_earned')
+      .eq('id', user.id)
+      .single();
+
+    // Fetch user roles
+    const { data: userRolesData, error: rolesError } = await supabaseClient
+      .from('user_roles')
+      .select(`
+        roles (
+          name,
+          emoji,
+          description
+        )
+      `)
+      .eq('user_id', user.id);
+
+    const roles = userRolesData?.map((ur: any) => ur.roles).filter(Boolean) || [];
+    const rolesList = roles.length > 0 
+      ? roles.map((r: any) => `${r.emoji} ${r.name}`).join(', ')
+      : 'No roles assigned';
+
+    const balance = userData?.balance || 0;
+    const bestStreak = userData?.best_streak || 0;
+    const totalPointsEarned = userData?.total_points_earned || 0;
+
     // Set the sender email to a safe default
     const fromEmail = "onboarding@resend.dev";
     
     const { type, title, description } = feedbackData;
+
+    // Build email HTML with user info
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #10b981;">Motixion Feedback</h2>
+        
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h3 style="margin-top: 0;">Feedback Details</h3>
+          <p><strong>Type:</strong> ${type}</p>
+          <p><strong>Title:</strong> ${title}</p>
+          <p><strong>Description:</strong></p>
+          <p style="background: white; padding: 10px; border-left: 3px solid #10b981; white-space: pre-wrap;">${description}</p>
+        </div>
+
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
+          <h3 style="margin-top: 0;">User Information</h3>
+          <p><strong>Username:</strong> ${feedbackData.username}</p>
+          <p><strong>Email:</strong> ${feedbackData.userEmail}</p>
+          <p><strong>Balance:</strong> ${balance} points</p>
+          <p><strong>Best Streak:</strong> ${bestStreak} days</p>
+          <p><strong>Total Points Earned:</strong> ${totalPointsEarned} points</p>
+          <p><strong>Roles:</strong> ${rolesList}</p>
+        </div>
+      </div>
+    `;
 
     // Send email via Resend API
     const resendResponse = await fetch("https://api.resend.com/emails", {
@@ -122,7 +175,7 @@ serve(async (req) => {
         from: fromEmail,
         to: Deno.env.get("FEEDBACK_RECIPIENT_EMAIL"),
         subject: `Motixion Feedback: ${title}`,
-        html: `<p><b>Type:</b> ${type}</p><p>${description}</p>`
+        html: emailHtml
       })
     });
 
