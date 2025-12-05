@@ -12,6 +12,14 @@ This Supabase Edge Function sends user feedback via Resend API.
    supabase secrets set FEEDBACK_RECIPIENT_EMAIL=your_email@example.com
    ```
 
+4. **Important - From Email Address:**
+   - For testing: The function will use `onboarding@resend.dev` by default (works for first 100 emails)
+   - For production: Verify a domain in Resend and set a custom from email:
+     ```bash
+     supabase secrets set RESEND_FROM_EMAIL=feedback@yourdomain.com
+     ```
+   - To verify a domain in Resend: Go to Domains → Add Domain → Follow verification steps
+
 ## Deployment
 
 Deploy the function using:
