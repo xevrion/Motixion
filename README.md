@@ -263,7 +263,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Add badges for achievements
 - [x] Implement profile editing (username, profile picture)
 - [x] Allow users to view their own notes from logging sessions
-- [ ] Add a feedback page for users unfamiliar with GitHub
+- [x] Add a feedback page for users unfamiliar with GitHub
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
 - [ ] Mobile app (React Native)
