@@ -616,3 +616,7 @@ BEGIN
   RETURN (SELECT COUNT(*) FROM public.users);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to anonymous users (anon role)
+GRANT EXECUTE ON FUNCTION public.get_total_user_count() TO anon;
+GRANT EXECUTE ON FUNCTION public.get_total_user_count() TO authenticated;

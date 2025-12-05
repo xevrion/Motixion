@@ -19,6 +19,7 @@ import { AnimatedCounter } from './AnimatedCounter';
 
 export const LandingPage: React.FC = () => {
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const isClient = typeof window !== "undefined";
 
   const handleEnter = () => {
     window.location.href = '/login';
@@ -35,14 +36,22 @@ export const LandingPage: React.FC = () => {
   const statsInView = useInView(statsRef, { once: true, amount: 0.3 });
   const ctaInView = useInView(ctaRef, { once: true, amount: 0.3 });
 
-  // Fetch total user count on component mount
+  // Fetch total user count ONLY on client after hydration
   useEffect(() => {
+    if (!isClient) return;
+
     const fetchUserCount = async () => {
-      const count = await getTotalUserCount();
-      setTotalUsers(count);
+      try {
+        const count = await getTotalUserCount();
+        setTotalUsers(count);
+      } catch (error) {
+        console.error('Failed to fetch user count:', error);
+        // Keep default 0 on error
+      }
     };
+    
     fetchUserCount();
-  }, []);
+  }, [isClient]);
 
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1, 0]);
