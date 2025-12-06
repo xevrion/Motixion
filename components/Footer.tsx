@@ -26,6 +26,21 @@ const socialLinks = [
   { name: "Discord", icon: MessageCircle, href: "https://discord.com" },
 ];
 
+export const FooterScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  e.preventDefault();
+  const element = document.querySelector(href);
+  if (element) {
+    const offset = 80; // Account for fixed navbar height
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+};
+
 const Footer = () => {
   return (
     <footer className="border-t border-white/5 py-16">
@@ -66,6 +81,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
+                    onClick={(e) => FooterScrollToSection(e, link.href)}
                     className="text-sm text-zinc-500 hover:text-foreground transition-colors"
                   >
                     {link.name}
@@ -82,6 +98,7 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
+                    onClick={(e) => FooterScrollToSection(e, link.href)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-zinc-500 hover:text-foreground transition-colors"
@@ -101,6 +118,7 @@ const Footer = () => {
                   <a
                     href={link.href}
                     target={link.href.startsWith('http') ? "_blank" : undefined}
+                    onClick={(e) => FooterScrollToSection(e, link.href)}
                     rel={link.href.startsWith('http') ? "noopener noreferrer" : undefined}
                     className="text-sm text-zinc-500 hover:text-foreground transition-colors"
                   >

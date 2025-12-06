@@ -1,8 +1,8 @@
+import React, { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
 import { Users, Target, Code2 } from "lucide-react";
 import { getTotalUserCount } from '../services/userCount';
 import { AnimatedCounter } from './AnimatedCounter';
-import { useState, useEffect } from 'react';
 
 const techStack = [
   { name: "React", color: "#ffffff" },
@@ -14,6 +14,7 @@ const techStack = [
 
 const SocialProofSection = () => {
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [hoveredTech, setHoveredTech] = useState<string | null>(null);
   const isClient = typeof window !== "undefined";
 
   useEffect(() => {
@@ -83,10 +84,14 @@ const SocialProofSection = () => {
                 whileHover={{ opacity: 1, scale: 1.05 }}
                 transition={{ duration: 0.2 }}
                 className="group cursor-pointer"
+                onMouseEnter={() => setHoveredTech(tech.name)}
+                onMouseLeave={() => setHoveredTech(null)}
               >
                 <span 
-                  className="text-lg md:text-xl font-semibold text-zinc-600 group-hover:text-foreground transition-colors"
-                  style={{ '--hover-color': tech.color } as React.CSSProperties}
+                  className="text-lg md:text-xl font-semibold transition-colors duration-200"
+                  style={{ 
+                    color: hoveredTech === tech.name ? tech.color : 'rgb(82, 82, 91)',
+                  } as React.CSSProperties}
                 >
                   {tech.name}
                 </span>
