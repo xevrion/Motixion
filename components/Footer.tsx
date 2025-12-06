@@ -1,22 +1,12 @@
+import React from "react";
 import { Github, Twitter, MessageCircle } from "lucide-react";
 
 const footerLinks = {
   product: [
     { name: "Features", href: "#features" },
     { name: "How it Works", href: "#how-it-works" },
-    { name: "Pricing", href: "#compare" },
+    { name: "Compare", href: "#compare" },
     { name: "FAQ", href: "#faq" },
-  ],
-  resources: [
-    { name: "Documentation", href: "https://github.com/xevrion/motixion" },
-    { name: "API Reference", href: "https://github.com/xevrion/motixion" },
-    { name: "Changelog", href: "https://github.com/xevrion/motixion" },
-    { name: "Roadmap", href: "https://github.com/xevrion/motixion" },
-  ],
-  legal: [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
-    { name: "MIT License", href: "https://github.com/xevrion/motixion/blob/main/LICENSE" },
   ],
 };
 
@@ -26,28 +16,32 @@ const socialLinks = [
   { name: "Discord", icon: MessageCircle, href: "https://discord.com" },
 ];
 
-export const FooterScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-  e.preventDefault();
-  const element = document.querySelector(href);
-  if (element) {
-    const offset = 80; // Account for fixed navbar height
-    const elementPosition = element.getBoundingClientRect().top;
-    const offsetPosition = elementPosition + window.pageYOffset - offset;
+const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  // Only handle hash links for smooth scrolling
+  if (href.startsWith('#')) {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      const offset = 80; // Account for fixed navbar height
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
 
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: 'smooth'
-    });
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   }
+  // For external links, let the browser handle navigation normally
 };
 
 const Footer = () => {
   return (
     <footer className="border-t border-white/5 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {/* Brand */}
-          <div className="col-span-2">
+          <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-lg">
                 M
@@ -73,7 +67,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links */}
+          {/* Product Links */}
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-4">Product</h4>
             <ul className="space-y-3">
@@ -81,46 +75,8 @@ const Footer = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    onClick={(e) => FooterScrollToSection(e, link.href)}
-                    className="text-sm text-zinc-500 hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-4">Resources</h4>
-            <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => FooterScrollToSection(e, link.href)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-zinc-500 hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-foreground mb-4">Legal</h4>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    target={link.href.startsWith('http') ? "_blank" : undefined}
-                    onClick={(e) => FooterScrollToSection(e, link.href)}
-                    rel={link.href.startsWith('http') ? "noopener noreferrer" : undefined}
-                    className="text-sm text-zinc-500 hover:text-foreground transition-colors"
+                    onClick={(e) => scrollToSection(e, link.href)}
+                    className="text-sm text-zinc-500 hover:text-white transition-colors duration-200"
                   >
                     {link.name}
                   </a>
@@ -148,4 +104,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
