@@ -7,7 +7,7 @@ const features = [
   { name: "Gamification & XP", generic: false, motixion: true },
   { name: "Accountability Partners", generic: false, motixion: true },
   { name: "Real Rewards System", generic: false, motixion: true },
-  { name: "Privacy First", generic: false, motixion: true },
+  // { name: "Privacy First", generic: false, motixion: true },
   { name: "Open Source", generic: false, motixion: true },
   { name: "Cost", generic: "$10/mo", motixion: "Free Forever" },
 ];

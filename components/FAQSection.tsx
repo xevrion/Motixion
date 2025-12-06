@@ -3,11 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
-  {
-    question: "Is my data safe?",
-    answer:
-      "Absolutely. Motixion follows a local-first philosophy. Your data stays on your device unless you explicitly choose to sync it. We don't track, analyze, or sell your data. Ever.",
-  },
+  
   {
     question: "How does the friend linking work?",
     answer:

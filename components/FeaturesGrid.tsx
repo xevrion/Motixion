@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageCircle, Trophy, Shield, Zap, Target, Users } from "lucide-react";
+import { MessageCircle, Trophy, Shield, Zap, Target, Users, User, User2 } from "lucide-react";
 
 const FeaturesGrid = () => {
   return (
@@ -41,7 +41,9 @@ const FeaturesGrid = () => {
             </p>
             <div className="glass rounded-xl p-4 border-emerald-500/20">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-700 flex-shrink-0" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-600 to-zinc-700 flex-shrink-0 flex items-center justify-center">
+                  <User2 className="w-6 h-6 text-zinc-300 flex items-center justify-center" />
+                </div>
                 <div className="space-y-1">
                   <p className="text-sm text-zinc-300">"Bro, did you miss your deep work session again? 😤"</p>
                   <p className="text-xs text-zinc-500">Just now • Alex (Accountability Partner)</p>
@@ -123,7 +125,7 @@ const FeaturesGrid = () => {
             <div className="flex items-center justify-center">
               <div className="w-20 h-20 rounded-full border-4 border-emerald-500/30 flex items-center justify-center relative">
                 <span className="text-2xl font-bold text-emerald-500">25</span>
-                <span className="absolute -bottom-1 text-xs text-zinc-500">min</span>
+                <span className="absolute bottom-2 text-xs text-zinc-500">min</span>
               </div>
             </div>
           </motion.div>
