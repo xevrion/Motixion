@@ -93,7 +93,7 @@ const Footer = () => {
           </p>
           <p className="text-sm text-zinc-600">
             Made with focus by{" "}
-            <a href="https://github.com/xevrion" target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:text-emerald-400 transition-colors">
+            <a href="https://github.com/xevrion" target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:text-emerald-400 hover:scale-105 hover:translate-y-[-1px] transition-all duration-200 inline-block">
               xevrion
             </a>
           </p>
