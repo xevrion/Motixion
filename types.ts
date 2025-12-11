@@ -103,5 +103,12 @@ export enum ViewState {
   SHOP = 'SHOP',
   PROFILE = 'PROFILE',
   AI_COACH = 'AI_COACH',
-  LEADERBOARD = 'LEADERBOARD'
+  LEADERBOARD = 'LEADERBOARD',
+  FEEDBACK = 'FEEDBACK'
+}
+
+export interface FeedbackInput {
+  type: 'bug' | 'feature' | 'other';
+  title: string;
+  description: string;
 }

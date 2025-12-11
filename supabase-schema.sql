@@ -427,46 +427,88 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Function to sync user avatar from auth.users on sign-in
+-- Only syncs if user doesn't have a custom uploaded avatar
 CREATE OR REPLACE FUNCTION public.sync_user_avatar()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_current_avatar TEXT;
+  v_google_avatar TEXT;
+  v_has_custom_avatar BOOLEAN;
 BEGIN
-  UPDATE public.users u
-  SET avatar_url = COALESCE(
-    NEW.raw_user_meta_data->>'avatar_url',
-    NEW.raw_user_meta_data->>'picture',
-    u.avatar_url  -- Keep existing if no new avatar found
-  )
-  WHERE u.id = NEW.id;
+  -- Get current avatar from public.users
+  SELECT avatar_url INTO v_current_avatar
+  FROM public.users
+  WHERE id = NEW.id;
+  
+  -- Check if current avatar is a custom uploaded avatar (stored in our storage bucket)
+  -- Custom avatars will have '/avatars/' in the path
+  v_has_custom_avatar := (
+    v_current_avatar IS NOT NULL AND
+    v_current_avatar LIKE '%/avatars/%'
+  );
+  
+  -- Only sync from Google if user doesn't have a custom avatar
+  IF NOT v_has_custom_avatar THEN
+    v_google_avatar := COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url',
+      NEW.raw_user_meta_data->>'picture'
+    );
+    
+    -- Update only if we have a Google avatar
+    IF v_google_avatar IS NOT NULL THEN
+      UPDATE public.users
+      SET avatar_url = v_google_avatar
+      WHERE id = NEW.id;
+    END IF;
+  END IF;
   
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to manually sync current user's avatar (callable from client)
+-- Only syncs if user doesn't have a custom uploaded avatar
 CREATE OR REPLACE FUNCTION public.sync_my_avatar()
 RETURNS void AS $$
 DECLARE
   v_user_id UUID;
-  v_avatar_url TEXT;
+  v_current_avatar TEXT;
+  v_google_avatar TEXT;
+  v_has_custom_avatar BOOLEAN;
 BEGIN
   v_user_id := auth.uid();
   IF v_user_id IS NULL THEN
     RETURN;
   END IF;
   
-  -- Get avatar from auth.users
-  SELECT COALESCE(
-    raw_user_meta_data->>'avatar_url',
-    raw_user_meta_data->>'picture'
-  ) INTO v_avatar_url
-  FROM auth.users
+  -- Get current avatar from public.users
+  SELECT avatar_url INTO v_current_avatar
+  FROM public.users
   WHERE id = v_user_id;
   
-  -- Update public.users if avatar found
-  IF v_avatar_url IS NOT NULL THEN
-    UPDATE public.users
-    SET avatar_url = v_avatar_url
+  -- Check if current avatar is a custom uploaded avatar (stored in our storage bucket)
+  -- Custom avatars will have '/avatars/' in the path
+  v_has_custom_avatar := (
+    v_current_avatar IS NOT NULL AND
+    v_current_avatar LIKE '%/avatars/%'
+  );
+  
+  -- Only sync from Google if user doesn't have a custom avatar
+  IF NOT v_has_custom_avatar THEN
+    -- Get avatar from auth.users
+    SELECT COALESCE(
+      raw_user_meta_data->>'avatar_url',
+      raw_user_meta_data->>'picture'
+    ) INTO v_google_avatar
+    FROM auth.users
     WHERE id = v_user_id;
+    
+    -- Update public.users if Google avatar found
+    IF v_google_avatar IS NOT NULL THEN
+      UPDATE public.users
+      SET avatar_url = v_google_avatar
+      WHERE id = v_user_id;
+    END IF;
   END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

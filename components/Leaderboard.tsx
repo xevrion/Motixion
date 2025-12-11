@@ -125,13 +125,23 @@ const Leaderboard = () => {
                 }`}>
                   {leaderboardUser.username}{isMe && ' (You)'}
                   {userTopRoles.get(leaderboardUser.id) && (
-                    <span
-                      className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-sm"
-                      title={userTopRoles.get(leaderboardUser.id)?.name}
-                    >
-                      {userTopRoles.get(leaderboardUser.id)?.emoji}
-                      <span className="font-semibold">{userTopRoles.get(leaderboardUser.id)?.name}</span>
-                    </span>
+                    <>
+                      {/* Mobile: just emoji, no box */}
+                      <span
+                        className="sm:hidden text-lg"
+                        title={userTopRoles.get(leaderboardUser.id)?.name}
+                      >
+                        {userTopRoles.get(leaderboardUser.id)?.emoji}
+                      </span>
+                      {/* Desktop: emoji and name with box */}
+                      <span
+                        className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-sm"
+                        title={userTopRoles.get(leaderboardUser.id)?.name}
+                      >
+                        {userTopRoles.get(leaderboardUser.id)?.emoji}
+                        <span className="font-semibold">{userTopRoles.get(leaderboardUser.id)?.name}</span>
+                      </span>
+                    </>
                   )}
                 </span>
               </div>

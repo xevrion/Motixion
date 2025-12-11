@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Edit3, ShoppingBag, User as UserIcon, Users, BarChart } from 'lucide-react';
+import { Home, Edit3, ShoppingBag, User as UserIcon, Users, BarChart, MessageSquare } from 'lucide-react';
 import { ViewState } from '../types';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from './ThemeToggle';
@@ -93,6 +93,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
             <NavItem view={ViewState.FRIEND} icon={Users} label="Friends" />
             <NavItem view={ViewState.SHOP} icon={ShoppingBag} label="Reward Shop" />
             <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" />
+            <NavItem view={ViewState.FEEDBACK} icon={MessageSquare} label="Feedback" />
           </nav>
 
           <ThemeToggle />
@@ -118,13 +119,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-950 border-t border-zinc-300 dark:border-zinc-800 flex items-center justify-around z-40"
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-950 border-t border-zinc-300 dark:border-zinc-800 flex items-center justify-around z-40 "
       >
         <NavItem view={ViewState.DASHBOARD} icon={Home} label="Home" mobile />
         <NavItem view={ViewState.FRIEND} icon={Users} label="Friends" mobile />
         <NavItem view={ViewState.LEADERBOARD} icon={BarChart} label="Ranks" mobile />
 
-        <motion.button whileTap={{ scale: 0.9 }} onClick={() => setView(ViewState.LOG)} className="flex flex-col items-center justify-center gap-1 -mt-6">
+        <motion.button whileTap={{ scale: 0.9 }} onClick={() => setView(ViewState.LOG)} className="flex flex-col items-center justify-center gap-1 -mt-6 flex-shrink-0">
           <div className="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20">
             <Edit3 size={24} strokeWidth={2.5} className="text-zinc-950" />
           </div>
@@ -132,6 +133,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }
         </motion.button>
 
         <NavItem view={ViewState.SHOP} icon={ShoppingBag} label="Shop" mobile />
+        <NavItem view={ViewState.FEEDBACK} icon={MessageSquare} label="Feedback" mobile />
         <NavItem view={ViewState.PROFILE} icon={UserIcon} label="Profile" mobile />
       </motion.div>
 
