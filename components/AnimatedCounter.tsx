@@ -18,8 +18,8 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   duration = 1.5,
   trigger = true
 }) => {
-  // Show 0 until trigger is true and we have a value
-  if (!trigger || value === 0) {
+  // Show 0 until trigger is true and we have a non-null value
+  if (!trigger || value === 0 || value === null || value === undefined) {
     return <span className={className}>0</span>;
   }
 
