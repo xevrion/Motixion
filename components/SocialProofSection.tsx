@@ -13,7 +13,7 @@ const techStack = [
 ];
 
 const SocialProofSection = () => {
-  const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
 
 
@@ -33,7 +33,7 @@ const SocialProofSection = () => {
   }, []);
 
   const stats = [
-    { label: "Active Users", value: <AnimatedCounter value={totalUsers} trigger={true} />, icon: Users },
+    { label: "Active Users", icon: Users },
     { label: "Tasks Crushed", value: "1000+", icon: Target },
     { label: "Open Source", value: "100%", icon: Code2 },
   ];
@@ -60,7 +60,11 @@ const SocialProofSection = () => {
             >
               <stat.icon className="w-8 h-8 text-emerald-500 mx-auto mb-4" />
               <p className="text-3xl md:text-4xl font-bold text-foreground mb-1">
-                {stat.value}
+                {stat.label === "Active Users" ? (
+                  <AnimatedCounter value={totalUsers} />
+                ) : (
+                  stat.value
+                )}
               </p>
               <p className="text-zinc-500">{stat.label}</p>
             </motion.div>
