@@ -18,17 +18,25 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   duration = 1.5,
   trigger = true
 }) => {
-  if (!trigger || value === null || value === undefined) {
+  if (!trigger) {
     return <span className={className}>0</span>;
   }
 
+  // If value is null/undefined, show 0 statically
+  if (value === null || value === undefined) {
+    return <span className={className}>0</span>;
+  }
+
+  // When we have a value, render CountUp with a key that includes the value
+  // This ensures it remounts and animates when value changes from null to number
   return (
     <CountUp
       start={0}
       end={value}
       duration={duration}
       separator=","
-      key={`${trigger}-${value}`}
+      enableScrollSpy={false}
+      key={`animated-${value}`}
     >
       {({ countUpRef }) => (
         <span ref={countUpRef} className={className} />
