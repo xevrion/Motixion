@@ -16,10 +16,7 @@ const SocialProofSection = () => {
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
 
-
   useEffect(() => {
-
-
     const fetchUserCount = async () => {
       try {
         const count = await getTotalUserCount();
@@ -32,10 +29,11 @@ const SocialProofSection = () => {
     fetchUserCount();
   }, []);
 
-  const stats = [
-    { label: "Active Users", icon: Users },
-    { label: "Tasks Crushed", value: "1000+", icon: Target },
-    { label: "Open Source", value: "100%", icon: Code2 },
+  // Define stats as plain data - NO JSX
+  const statsData = [
+    { label: "Active Users", type: "counter" as const, icon: Users },
+    { label: "Tasks Crushed", type: "static" as const, value: "1000+", icon: Target },
+    { label: "Open Source", type: "static" as const, value: "100%", icon: Code2 },
   ];
 
   return (
@@ -49,7 +47,7 @@ const SocialProofSection = () => {
           transition={{ duration: 0.6 }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-16"
         >
-          {stats.map((stat, i) => (
+          {statsData.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
@@ -60,7 +58,7 @@ const SocialProofSection = () => {
             >
               <stat.icon className="w-8 h-8 text-emerald-500 mx-auto mb-4" />
               <p className="text-3xl md:text-4xl font-bold text-foreground mb-1">
-                {stat.label === "Active Users" ? (
+                {stat.type === "counter" ? (
                   <AnimatedCounter value={totalUsers} />
                 ) : (
                   stat.value
