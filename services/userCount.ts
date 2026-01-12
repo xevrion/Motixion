@@ -9,48 +9,35 @@ import { supabase } from './supabase';
  */
 export const getTotalUserCount = async (): Promise<number> => {
   try {
-    // Try RPC function first (bypasses RLS, most efficient)
-    // This should work even for anonymous users since it's SECURITY DEFINER
+    // Try RPC first
     const { data: rpcData, error: rpcError } = await supabase.rpc('get_total_user_count');
-    
+
     if (!rpcError && rpcData !== null && rpcData !== undefined) {
-      const count = typeof rpcData === 'number' ? rpcData : parseInt(String(rpcData), 10);
-      if (!isNaN(count) && count > 0) {
+      const count = Number(rpcData);
+      if (!Number.isNaN(count)) {
         return count;
       }
     }
 
     if (rpcError) {
-      console.warn('RPC function failed, trying fallback:', rpcError);
+      console.warn('RPC failed, using fallback:', rpcError.message);
     }
 
-    // Fallback: Use same pattern as getTotalPointsLeaderboard - select minimal field and count
-    // This works because RLS policy allows SELECT for all users (authenticated or not)
-    // The RLS policy "Users can view all profiles" uses USING (true) which allows anonymous access
-    const { data, error } = await supabase
+    // Fallback: proper count query
+    const { count, error } = await supabase
       .from('users')
-      .select('id', { count: 'exact' });
+      .select('*', { count: 'exact', head: true });
 
     if (error) {
-      console.error('Error fetching user count (fallback):', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      });
+      console.error('Fallback count failed:', error);
       return 0;
     }
 
-    // If count is available, use it; otherwise count the array
-    if (data && Array.isArray(data)) {
-      return data.length;
-    }
-
-    return 0;
-  } catch (error) {
-    console.error('Unexpected error fetching user count:', error);
+    return count ?? 0;
+  } catch (err) {
+    console.error('Unexpected error:', err);
     return 0;
   }
 };
+
 
