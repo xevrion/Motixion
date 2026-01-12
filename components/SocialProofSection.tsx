@@ -15,10 +15,10 @@ const techStack = [
 const SocialProofSection = () => {
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
-  const isClient = typeof window !== "undefined";
+
 
   useEffect(() => {
-    if (!isClient) return;
+
 
     const fetchUserCount = async () => {
       try {
@@ -30,7 +30,7 @@ const SocialProofSection = () => {
     };
     
     fetchUserCount();
-  }, [isClient]);
+  }, []);
 
   const stats = [
     { label: "Active Users", value: <AnimatedCounter value={totalUsers} trigger={true} />, icon: Users },
