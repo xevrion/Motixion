@@ -1,40 +1,45 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import CountUp from 'react-countup';
 
 interface AnimatedCounterProps {
-  value: number;
+  value: number | null;
   className?: string;
   duration?: number;
-  trigger?: boolean;
 }
 
 /**
- * Animated counter component that counts up from 0 to the target value
- * Uses react-countup library for smooth, tested animations
+ * Animated counter component that counts up from 0 to the target value.
+ * Production-safe: uses update() method instead of key-based remounting.
+ * This ensures the animation triggers when async data arrives.
  */
-export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({ 
-  value, 
+export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
+  value,
   className = '',
   duration = 1.5,
-  trigger = true
 }) => {
-  // Show 0 until trigger is true and we have a non-null value
-  if (!trigger || value === 0 || value === null || value === undefined) {
-    return <span className={className}>0</span>;
-  }
+  const countUpRef = useRef<any>(null);
+  const prevValueRef = useRef<number | null>(null);
 
-  // CountUp will automatically animate when mounted
+  useEffect(() => {
+    // When value changes from null to number, trigger animation
+    if (value !== null && value !== prevValueRef.current && countUpRef.current) {
+      countUpRef.current.update(value);
+    }
+    prevValueRef.current = value;
+  }, [value]);
+
+  // Always render CountUp, even when value is null
+  // This prevents remounting issues in production
   return (
     <CountUp
-      end={value}
       start={0}
+      end={value ?? 0}
       duration={duration}
       separator=","
-      enableScrollSpy={false}
-      key={`${trigger}-${value}`}
+      ref={countUpRef}
     >
-      {({ countUpRef }) => (
-        <span ref={countUpRef} className={className} />
+      {({ countUpRef: innerRef }) => (
+        <span ref={innerRef} className={className} />
       )}
     </CountUp>
   );
