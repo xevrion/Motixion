@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
 import { Users, Target, Code2 } from "lucide-react";
 import { getTotalUserCount } from '../services/userCount';
+import { AnimatedCounter } from './AnimatedCounter';
 
 const techStack = [
   { name: "React", color: "#ffffff" },
@@ -32,7 +33,7 @@ const SocialProofSection = () => {
   }, []);
 
   const stats = [
-    { label: "Active Users", value: totalUsers > 0 ? totalUsers.toLocaleString() : "0", icon: Users },
+    { label: "Active Users", value: <AnimatedCounter value={totalUsers} trigger={true} />, icon: Users },
     { label: "Tasks Crushed", value: "1000+", icon: Target },
     { label: "Open Source", value: "100%", icon: Code2 },
   ];
