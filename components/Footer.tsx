@@ -12,8 +12,8 @@ const footerLinks = {
 
 const socialLinks = [
   { name: "GitHub", icon: Github, href: "https://github.com/xevrion/motixion" },
-  { name: "Twitter", icon: Twitter, href: "https://twitter.com" },
-  { name: "Discord", icon: MessageCircle, href: "https://discord.com" },
+  { name: "Twitter", icon: Twitter, href: "https://x.com/xevrion_the1" },
+  { name: "Discord", icon: MessageCircle, href: "https://discord.com/users/1121919048465268756" },
 ];
 
 const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
