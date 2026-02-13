@@ -264,6 +264,7 @@ Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 - [x] Implement profile editing (username, profile picture)
 - [x] Allow users to view their own notes from logging sessions
 - [x] Add a feedback page for users unfamiliar with GitHub
+- [ ] Add PWA functionality (make it work well with phones)
 - [ ] Add option for night owls/all nighters to set custom sleep/wake times
 - [ ] Weekly/monthly reports and analytics
 - [ ] Group accountability mode for teams
